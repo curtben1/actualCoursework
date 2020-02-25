@@ -284,10 +284,11 @@ class Hand(Table):                              # class created for each hand of
             beaten=0
             for y in range(0,len(self.players)):
                 if y == j:
-                    break
+                    pass
                 elif self.players[j][5][0] > self.players[y][5][0]:
                     beaten = beaten + 1
-                    if beaten == len(self.players)-2:
+                    print(beaten)
+                    if beaten == len(self.players)-1:
                         winner=j
                         print("winner is", j)
                 elif self.players[j][5][0]==self.players[y][5][0]:        #edgecases start here, good luck
@@ -329,7 +330,7 @@ class Hand(Table):                              # class created for each hand of
                 flush=True
                 suit.sort(reverse=True)
                 while len(suit)> 5:
-                    del suit[len(suit-1)]
+                    del suit[len(suit)-1]
                 flushCards=suit
         if flush == True:
             return flushCards
@@ -474,7 +475,7 @@ class Hand(Table):                              # class created for each hand of
             
     def getHighest(self,cards):                 # returns the highest card in a given array
         cards.sort(reverse=True)
-        return cards(0)
+        return cards[0]
             
     def sortBySuit(self,cards,suit):            # returns an array of all cards in the given array of the same suit as the parameter
         newArray=[]
