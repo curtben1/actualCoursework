@@ -159,18 +159,18 @@ class Hand(Table):                              # class created for each hand of
         print(self.players,'\n', self.centre)
         
     def bettingRound(self):                     # no return, acts on self variable only
-        # make this a nested while loop so that all bets are payed up in  ultiple rounds when necessary, not sure what the while loop condition should be
         # also add some validation and make this ready for network use by abstracting some of the get input fuctionality 
         currentBet=0
-        print(len(self.players))
-        i=0
         again=True
+        raiser=len(self.players)
         while again== True:
             remaining=len(self.players)
+            i=0
             for j in range(0,len(self.players)-1):
                 if self.players[j][3]==True:
                     remaining += 1
-            while self.players[i][3]==True and i < len(self.players):    
+            while   i < len(self.players) and i<raiser and self.players[i][3]==True and remaining>1: 
+                print(i)
                 if currentBet != 0:
                     action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")
                 else:
@@ -178,11 +178,12 @@ class Hand(Table):                              # class created for each hand of
                 if action == 'C':
                     again=False
                     if currentBet > self.players[i][2]-self.players[i][4]:
-                        splitPot = True
+                        splitPot = True # currently unused but needs doing soon before network integration
                     else:
                         bet=currentBet
                 elif action == 'R':
                     again=True
+                    raiser=i
                     if currentBet > self.players[i][2]-self.players[i][4]:
                         print("you can't afford to call so have been put all in")
                         splitPot = True
@@ -200,7 +201,7 @@ class Hand(Table):                              # class created for each hand of
                 #if splitPot == True:
                 #   pass        
                 #else:
-                self.players[i][4]= self.players[i][4] + bet        #alters ther individual players 
+                self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
                 i += 1
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
@@ -278,6 +279,7 @@ class Hand(Table):                              # class created for each hand of
                     print("sf")
         
         tie=[-1]
+        print(self.players)
         for j in range(0,len(self.players)):
             beaten=0
             for y in range(0,len(self.players)):
@@ -360,9 +362,12 @@ class Hand(Table):                              # class created for each hand of
         
     def checkStraightFlush(self, cards):        # returns the highest card in the run or false
         flush= self.checkFlush(cards)
-        straight= self.checkStraight(flush)
-        if straight != False and flush != False:
-            return straight                     # straight only returns the highest card and the suit of the cards is now irrelevant
+        if flush != False:
+            straight= self.checkStraight(flush)
+            if straight != False and flush != False:
+                return straight                     # straight only returns the highest card and the suit of the cards is now irrelevant
+            else:
+                return False
         else:
             return False
         
@@ -468,7 +473,7 @@ class Hand(Table):                              # class created for each hand of
             return False
             
     def getHighest(self,cards):                 # returns the highest card in a given array
-        cards.sort(Reverse=True)
+        cards.sort(reverse=True)
         return cards(0)
             
     def sortBySuit(self,cards,suit):            # returns an array of all cards in the given array of the same suit as the parameter
