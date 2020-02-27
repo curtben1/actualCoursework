@@ -31,16 +31,11 @@ array/library formats:
                       player:card1,card2,chips ,folded,contributed,Won objectives}    
     
 todo:
-add a issinstance(winner, list) to check if there is multiple winners and divide up accordingly
-
     add a pot distributing function that takes findWinners returns and actually calculates stuff
 
-    add split pot checking on each betting round
+   add some easier network integration by laying a decent foundation
 
-
-
-    make some random bs validation to keep ocr happy
-
+    do a bunch more testing
 """
 
 #================================================================================================================================================================================
@@ -167,40 +162,45 @@ class Hand(Table):                              # class created for each hand of
         raised =0
         while again== True:
             again=False
-            remaining=len(self.players)
+            remaining=0
             i=0
-            for j in range(0,len(self.players)-1):
+            for j in range(0,len(self.players)):
                 if self.players[j][3]==True:
                     remaining += 1
-            while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and self.players[i][3]==True and remaining>1: 
-                print(i)
-                if currentBet != 0:
-                    action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")
-                else:
-                    action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
-                if action == 'C':
-                    if currentBet > self.players[i][2]-self.players[i][4]:
-                        print("you can't afford to call so have been put all in")
-                        bet=self.players[i][2]-self.players[i][4]
+            while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and remaining>1: 
+                if self.players[i][3]==True:
+                    print(i)
+                    if currentBet != 0:
+                        action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")
                     else:
-                        bet=currentBet
-                elif action == 'R':
-                    again=True
-                    raiser=i
-                    raised=counter
-                    if currentBet > self.players[i][2]-self.players[i][4]:
-                        print("you can't afford to call so have been put all in")
-                    else:
-                        bet=currentBet+int(input("How much do you want to raise it by? "))
-                        while bet > self.players[i][2]-self.players[i][4]:
-                            print("You can't afford the bet")
+                        action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
+                    if action == 'C':
+                        if currentBet > self.players[i][2]-self.players[i][4]:
+                            print("you can't afford to call so have been put all in")
+                            bet=self.players[i][2]-self.players[i][4]
+                        else:
+                            bet=currentBet
+                    elif action == 'R':
+                        again=True
+                        raiser=i
+                        raised=counter
+                        if currentBet > self.players[i][2]-self.players[i][4]:
+                            print("you can't afford to call so have been put all in")
+                        else:
                             bet=currentBet+int(input("How much do you want to raise it by? "))
-                        currentBet=bet
-                elif action == 'F':
-                    bet = 0
-                    self.players[i][3]= False
-                self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
+                            while bet > self.players[i][2]-self.players[i][4]:
+                                print("You can't afford the bet")
+                                bet=currentBet+int(input("How much do you want to raise it by? "))
+                            currentBet=bet
+                    elif action == 'F':
+                        bet = 0
+                        self.players[i][3]= False
+                    self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
                 i += 1
+                remaining=0
+                for j in range(0,len(self.players)):
+                    if self.players[j][3]==True:
+                        remaining += 1
             counter=counter+1
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
@@ -276,8 +276,7 @@ class Hand(Table):                              # class created for each hand of
                 else:
                     self.players[i].append([8,straightFlush])
                     print("sf")
-        
-        tie=[-1]
+
         print(self.players)
         winner=[]
         for j in range(0,len(self.players)):
