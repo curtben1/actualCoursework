@@ -166,6 +166,7 @@ class Hand(Table):                              # class created for each hand of
         counter=0
         raised =0
         while again== True:
+            again=False
             remaining=len(self.players)
             i=0
             for j in range(0,len(self.players)-1):
@@ -178,7 +179,6 @@ class Hand(Table):                              # class created for each hand of
                 else:
                     action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
                 if action == 'C':
-                    again=False
                     if currentBet > self.players[i][2]-self.players[i][4]:
                         print("you can't afford to call so have been put all in")
                         bet=self.players[i][2]-self.players[i][4]
@@ -197,7 +197,6 @@ class Hand(Table):                              # class created for each hand of
                             bet=currentBet+int(input("How much do you want to raise it by? "))
                         currentBet=bet
                 elif action == 'F':
-                    again=False
                     bet = 0
                     self.players[i][3]= False
                 self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
@@ -309,8 +308,6 @@ class Hand(Table):                              # class created for each hand of
         print(winner)
         return winner
 
-        
-
     def checkFlush(self,cards):                 # returns [card1, card2, crad3, card4, card5]
         flush=False
         for i in range (0,4):
@@ -420,7 +417,7 @@ class Hand(Table):                              # class created for each hand of
                 three=True
                 others=[]
                 for j in range(0,len(cards)-1):
-                    if j !=i:
+                    if j !=i and j!=i+1 and j!= i+2:
                         others.append(cards[j])
                 others.sort(reverse=True)
                 retValues=[cards[i],others[0],others[1]]
@@ -436,7 +433,7 @@ class Hand(Table):                              # class created for each hand of
                 quads=True
                 others=[]
                 for j in range(0,len(cards)-1):
-                    if j !=i:
+                    if j !=i and j!=i+1 and j!=i+2 and j!=i+3:
                         others.append(cards[j])
                 others.sort(reverse=True)
                 return [cards[i],others[0]]
