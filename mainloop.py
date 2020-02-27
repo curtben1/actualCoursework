@@ -163,30 +163,33 @@ class Hand(Table):                              # class created for each hand of
         currentBet=0
         again=True
         raiser=len(self.players)
+        counter=0
+        raised =0
         while again== True:
+            again=False
             remaining=len(self.players)
             i=0
             for j in range(0,len(self.players)-1):
                 if self.players[j][3]==True:
                     remaining += 1
-            while   i < len(self.players) and i<raiser and self.players[i][3]==True and remaining>1: 
+            while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and self.players[i][3]==True and remaining>1: 
                 print(i)
                 if currentBet != 0:
                     action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")
                 else:
                     action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
                 if action == 'C':
-                    again=False
                     if currentBet > self.players[i][2]-self.players[i][4]:
-                        splitPot = True # currently unused but needs doing soon before network integration
+                        print("you can't afford to call so have been put all in")
+                        bet=self.players[i][2]-self.players[i][4]
                     else:
                         bet=currentBet
                 elif action == 'R':
                     again=True
                     raiser=i
+                    raised=counter
                     if currentBet > self.players[i][2]-self.players[i][4]:
                         print("you can't afford to call so have been put all in")
-                        splitPot = True
                     else:
                         bet=currentBet+int(input("How much do you want to raise it by? "))
                         while bet > self.players[i][2]-self.players[i][4]:
@@ -194,15 +197,11 @@ class Hand(Table):                              # class created for each hand of
                             bet=currentBet+int(input("How much do you want to raise it by? "))
                         currentBet=bet
                 elif action == 'F':
-                    again=False
                     bet = 0
                     self.players[i][3]= False
-
-                #if splitPot == True:
-                #   pass        
-                #else:
                 self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
                 i += 1
+            counter=counter+1
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
         flopCards=[self.centre[0],self.centre[1],self.centre[2]]
@@ -280,47 +279,34 @@ class Hand(Table):                              # class created for each hand of
         
         tie=[-1]
         print(self.players)
+        winner=[]
         for j in range(0,len(self.players)):
             beaten=0
-            for y in range(0,len(self.players)):
-                if y == j:
-                    pass
-                elif self.players[j][5][0] > self.players[y][5][0]:
-                    beaten = beaten + 1
-                    print(beaten)
-                    if beaten == len(self.players)-1:
-                        winner=j
-                        print("winner is", j)
-                elif self.players[j][5][0]==self.players[y][5][0]:        #edgecases start here, good luck
-                    print("no clear winner, calculating tie conditions")
-                    same=True 
-                    draw=False
-                    counter=1
-                    while (same ==True and  draw == False) and (counter<len(self.players[y][5]) and counter< len(self.players[j][5])):
-                        if self.players[j][5][counter]>self.players[y][5][counter]:
-                            beaten += 1
-                            same=False
-                            if beaten == len(self.players)-2:
-                                winner=j
-                        if counter == len(self.players[j][5][1])-1 or counter == len(self.players[j][5][1])-1:
-                            draw = True
-                            if tie[0]<self.players[j][5] or tie[0] ==-1:
-                                tie=[self.players[j][5][0],i,j]                                     #format= tie[card ranking, 1st person tied, second person tied]
-                            elif (tie[1]==y and tie[2]!=y) or (tie[2] ==y and tie[1]!=y):           
-                                tie.append(j)
-                            
-                            #  add tied pot code noting we need more than 2 way split pots, & a tie doesnt mean a win they could be tied losers
-                            #  so this fact must be stored somewhere with how many in the draw and what they drew on 
-                        counter += 1
-        if tie[0] ==  -1:       # and no split pot
-            print("no tie")
-            return winner        
-        else:
-            print("multiple winners, splitting pot...")
-            winner=[]
-            for index in range (1,len(tie)-1):
-                winner.append(tie[index])
-            return winner
+            if self.players[j][3]==False:
+                pass
+            else:
+                for y in range(0,len(self.players)):
+                    if y == j:
+                        pass
+                    elif self.players[y][3]==False:
+                        pass
+                    elif self.players[j][5][0] > self.players[y][5][0]:
+                        beaten = beaten + 1
+                        print(beaten)
+                    elif self.players[j][5][0]==self.players[y][5][0]:        #edgecases start here, good luck
+                        print("no clear winner, calculating tie conditions")
+                        same=True 
+                        draw=False
+                        counter=1
+                        while (same ==True and  draw == False) and (counter<len(self.players[y][5]) and counter< len(self.players[j][5])):
+                            if self.players[j][5][counter]>self.players[y][5][counter]:
+                                beaten += 1
+                                same=False
+                            counter += 1
+                winner.append([j,self.players[j][4],beaten])        #an array of how many people they have beaten and how much they contriputed which will be used when calculating split and normal pots
+        winner=sorted(winner, key=lambda row: row[2],reverse=True)
+        print(winner)
+        return winner
 
     def checkFlush(self,cards):                 # returns [card1, card2, crad3, card4, card5]
         flush=False
@@ -380,7 +366,7 @@ class Hand(Table):                              # class created for each hand of
                 pair=True
                 others=[]
                 for j in range(0,len(cards)-1):
-                    if j !=i:
+                    if j !=i and j!=i+1:
                         others.append(cards[j])
                 others.sort(reverse=True)
                 if len(cards)==4:
@@ -418,6 +404,8 @@ class Hand(Table):                              # class created for each hand of
                 others.sort(reverse=True)
                 values=[cards[pair1],cards[pair2],others[0]]            
                 return values
+            else:
+                return False
         else:
             return False
        
@@ -429,7 +417,7 @@ class Hand(Table):                              # class created for each hand of
                 three=True
                 others=[]
                 for j in range(0,len(cards)-1):
-                    if j !=i:
+                    if j !=i and j!=i+1 and j!= i+2:
                         others.append(cards[j])
                 others.sort(reverse=True)
                 retValues=[cards[i],others[0],others[1]]
@@ -445,7 +433,7 @@ class Hand(Table):                              # class created for each hand of
                 quads=True
                 others=[]
                 for j in range(0,len(cards)-1):
-                    if j !=i:
+                    if j !=i and j!=i+1 and j!=i+2 and j!=i+3:
                         others.append(cards[j])
                 others.sort(reverse=True)
                 return [cards[i],others[0]]
@@ -475,7 +463,7 @@ class Hand(Table):                              # class created for each hand of
             
     def getHighest(self,cards):                 # returns the highest card in a given array
         cards.sort(reverse=True)
-        return cards[0]
+        return cards[0:6]
             
     def sortBySuit(self,cards,suit):            # returns an array of all cards in the given array of the same suit as the parameter
         newArray=[]
