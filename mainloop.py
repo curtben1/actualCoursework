@@ -30,17 +30,14 @@ array/library formats:
     players         ={player:card1,card2,chips ,folded,contributed,Won objectives
                       player:card1,card2,chips ,folded,contributed,Won objectives}    
     
+    winner          =[player, contributed, beaten       # sorted by beaten
+                      player, contributed, beaten]      
 todo:
-add a issinstance(winner, list) to check if there is multiple winners and divide up accordingly
-
     add a pot distributing function that takes findWinners returns and actually calculates stuff
 
-    add split pot checking on each betting round
+   add some easier network integration by laying a decent foundation
 
-
-
-    make some random bs validation to keep ocr happy
-
+    do a bunch more testing
 """
 
 #================================================================================================================================================================================
@@ -112,14 +109,16 @@ class Table:                                    # class created to run and store
     def __init__(self):
         Table.totalPlayers=int(input("how many players"))
         ##self.playerChips={}
+        self.hands=0
         
         for i in range(0,Table.totalPlayers):
             self.playerChips[i]=500
-            
-    pass
+        self.blind=50
 
     def playHand(self):
-        self.newhand=Hand()
+        self.hands=self.hands+1
+        self.blind=self.blind*2
+        self.newhand=Hand(self.blind)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
@@ -134,10 +133,13 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self):                         # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind):                         # shuffles the deck, initialises the player library and deals the cards
+        self.sBlind=sBlind
+        self.bBlind=sBlind*2
         self.deck=shuffle()                     
         self.players={}
         self.centre=[]
+        self.round=0
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
             self.players[i]=[]
@@ -159,48 +161,76 @@ class Hand(Table):                              # class created for each hand of
         print(self.players,'\n', self.centre)
         
     def bettingRound(self):                     # no return, acts on self variable only
-        # also add some validation and make this ready for network use by abstracting some of the get input fuctionality 
+        # make this ready for network use by abstracting some of the get input fuctionality 
         currentBet=0
         again=True
         raiser=len(self.players)
         counter=0
         raised =0
+        blinds=False
+        self.round=self.round +1
         while again== True:
             again=False
-            remaining=len(self.players)
+            remaining=0
             i=0
-            for j in range(0,len(self.players)-1):
+            for j in range(0,len(self.players)):
                 if self.players[j][3]==True:
                     remaining += 1
-            while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and self.players[i][3]==True and remaining>1: 
-                print(i)
-                if currentBet != 0:
-                    action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")
-                else:
-                    action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
-                if action == 'C':
-                    if currentBet > self.players[i][2]-self.players[i][4]:
-                        print("you can't afford to call so have been put all in")
-                        bet=self.players[i][2]-self.players[i][4]
+            if self.round==1 and blinds==False:           #code that facillitates small and big blind
+                self.players[i][4]= self.sBlind
+                i +=1
+                self.players[i][4]= self.bBlind
+                print(self.players)
+                currentBet=self.bBlind
+                raiser=i+1
+                raised=counter
+                again=True
+                i+=1
+                blinds=True
+
+            while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and remaining>1:
+                if blinds==True and i==0:
+                    currentBet=currentBet-self.sBlind 
+                elif blinds==True and i==1:
+                    currentBet=currentBet-self.sBlind
+                if self.players[i][3]==True:
+                    print(i)
+                    if currentBet != 0:
+                        action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")      #no need for input validation, will be signalled by ui
                     else:
-                        bet=currentBet
-                elif action == 'R':
-                    again=True
-                    raiser=i
-                    raised=counter
-                    if currentBet > self.players[i][2]-self.players[i][4]:
-                        print("you can't afford to call so have been put all in")
-                    else:
-                        bet=currentBet+int(input("How much do you want to raise it by? "))
-                        while bet > self.players[i][2]-self.players[i][4]:
-                            print("You can't afford the bet")
-                            bet=currentBet+int(input("How much do you want to raise it by? "))
-                        currentBet=bet
-                elif action == 'F':
-                    bet = 0
-                    self.players[i][3]= False
-                self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
+                        action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
+                    if action == 'C':
+                        if currentBet > self.players[i][2]-self.players[i][4]:
+                            print("you can't afford to call so have been put all in")
+                            bet=self.players[i][2]-self.players[i][4]
+                        else:
+                            bet=currentBet
+                    elif action == 'R':
+                        again=True
+                        raiser=i
+                        raised=counter
+                        if currentBet > self.players[i][2]-self.players[i][4]:
+                            print("you can't afford to call so have been put all in")
+                        else:
+                            amount= int(input("How much do you want to raise it by? "))
+                            bet=currentBet+amount
+                            while bet > self.players[i][2]-self.players[i][4] and amount<self.bBlind:
+                                if bet> self.players[i][2]-self.players[i][4]:
+                                    print("You can't afford the bet")
+                                else:
+                                    print("that is below the minimum raise of the big blind")       # when doing a ui add an option to change your mind esp at this point
+                                amount=int(input("How much do you want to raise it by? "))
+                                bet=currentBet+amount
+                            currentBet=bet
+                    elif action == 'F':
+                        bet = 0
+                        self.players[i][3]= False
+                    self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
                 i += 1
+                remaining=0
+                for j in range(0,len(self.players)):
+                    if self.players[j][3]==True:
+                        remaining += 1
             counter=counter+1
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
@@ -276,8 +306,7 @@ class Hand(Table):                              # class created for each hand of
                 else:
                     self.players[i].append([8,straightFlush])
                     print("sf")
-        
-        tie=[-1]
+
         print(self.players)
         winner=[]
         for j in range(0,len(self.players)):
