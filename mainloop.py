@@ -218,7 +218,7 @@ class Hand(Table):                              # class created for each hand of
                                 if bet> self.players[i][2]-self.players[i][4]:
                                     print("You can't afford the bet")
                                 else:
-                                    print("that is below the minimum raise of the big blind")       #when doing a ui add an option to change your mind esp at this point
+                                    print("that is below the minimum raise of the big blind")       # when doing a ui add an option to change your mind esp at this point
                                 amount=int(input("How much do you want to raise it by? "))
                                 bet=currentBet+amount
                             currentBet=bet
