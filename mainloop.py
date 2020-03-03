@@ -129,7 +129,7 @@ class Table:                                    # class created to run and store
         self.newhand.bettingRound()
         winners=self.newhand.findWinner()
         self.newhand.allocateChips(winners)
-        print(winners)
+        print(winners,'\n')
         print(self.newhand.players)
 #==================================================================================================================================================================================
 
@@ -252,7 +252,9 @@ class Hand(Table):                              # class created for each hand of
             total=winners[i][1]
             self.players[winners[i][0]][2]-=self.players[winners[i][0]][4]
             for j in range(0,len(winners)):
-                if winners[i][1]>=winners[j][1]:
+                if i==j:
+                    pass
+                elif winners[i][1]>=winners[j][1]:
                     total=total+winners[j][1]
                     winners[j][1]=0
                 else:
