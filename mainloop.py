@@ -128,9 +128,10 @@ class Table:                                    # class created to run and store
         print(self.newhand.river())
         self.newhand.bettingRound()
         winners=self.newhand.findWinner()
-        self.newhand.allocateChips(winners)
-        print(winners,'\n')
-        print(self.newhand.players)
+        handRes=self.newhand.allocateChips(winners)
+        for i in range(0, len(handRes)):
+            self.playerChips[i]=handRes[i][2]
+        print(self.playerChips)
 #==================================================================================================================================================================================
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
@@ -262,6 +263,7 @@ class Hand(Table):                              # class created for each hand of
                     winners[j][1]=winners[j][1]-winners[i][1]
             winners[i][1]=0
             self.players[winners[i][0]][2]+=total
+        return(self.players)
              
     def findWinner(self):                       # returns either the index of a single winner or a list of index of tied winners
         print("finding winner")
