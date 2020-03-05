@@ -33,9 +33,7 @@ array/library formats:
     winner          =[player, contributed, beaten       # sorted by beaten
                       player, contributed, beaten]      
 todo:
-    add a pot distributing function that takes findWinners returns and actually calculates stuff
-
-   add some easier network integration by laying a decent foundation
+    add some easier network integration by laying a decent foundation
 
     do a bunch more testing
 """
