@@ -33,9 +33,7 @@ array/library formats:
     winner          =[player, contributed, beaten       # sorted by beaten
                       player, contributed, beaten]      
 todo:
-    add a pot distributing function that takes findWinners returns and actually calculates stuff
-
-   add some easier network integration by laying a decent foundation
+    add some easier network integration by laying a decent foundation
 
     do a bunch more testing
 """
@@ -127,8 +125,11 @@ class Table:                                    # class created to run and store
         self.newhand.bettingRound()
         print(self.newhand.river())
         self.newhand.bettingRound()
-        print(self.newhand.findWinner())
-        
+        winners=self.newhand.findWinner()
+        handRes=self.newhand.allocateChips(winners)
+        for i in range(0, len(handRes)):
+            self.playerChips[i]=handRes[i][2]
+        print(self.playerChips)
 #==================================================================================================================================================================================
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
@@ -244,7 +245,24 @@ class Hand(Table):                              # class created for each hand of
     def river(self):                            # returns [card5]
         riverCard=self.centre[4]
         return riverCard
-      
+
+    def allocateChips(self,winners):            # no return, change players chips
+        for i in range(0,len(winners)):
+            total=winners[i][1]
+            self.players[winners[i][0]][2]-=self.players[winners[i][0]][4]
+            for j in range(0,len(winners)):
+                if i==j:
+                    pass
+                elif winners[i][1]>=winners[j][1]:
+                    total=total+winners[j][1]
+                    winners[j][1]=0
+                else:
+                    total=total+winners[i][1]
+                    winners[j][1]=winners[j][1]-winners[i][1]
+            winners[i][1]=0
+            self.players[winners[i][0]][2]+=total
+        return(self.players)
+             
     def findWinner(self):                       # returns either the index of a single winner or a list of index of tied winners
         print("finding winner")
         winner= None
@@ -312,6 +330,7 @@ class Hand(Table):                              # class created for each hand of
         for j in range(0,len(self.players)):
             beaten=0
             if self.players[j][3]==False:
+                beaten=-1   #ensures that folded players never get any money back, maybe unnecesary but shouldnt hurt
                 pass
             else:
                 for y in range(0,len(self.players)):
@@ -332,7 +351,7 @@ class Hand(Table):                              # class created for each hand of
                                 beaten += 1
                                 same=False
                             counter += 1
-                winner.append([j,self.players[j][4],beaten])        #an array of how many people they have beaten and how much they contriputed which will be used when calculating split and normal pots
+            winner.append([j,self.players[j][4],beaten])        #an array of how many people they have beaten and how much they contriputed which will be used when calculating split and normal pots
         winner=sorted(winner, key=lambda row: row[2],reverse=True)
         print(winner)
         return winner
