@@ -1,4 +1,7 @@
 import random
+import socket
+import localServer as lS
+import localClient as lC
 """
 main logic for a poker game
 
@@ -104,6 +107,7 @@ def shuffle():
 class Table:                                    # class created to run and store logic about the current game and everyone at the "table"
     totalPlayers=0
     playerChips={}
+    playerIP=[]
     def __init__(self):
         Table.totalPlayers=int(input("how many players"))
         ##self.playerChips={}
@@ -111,6 +115,7 @@ class Table:                                    # class created to run and store
         
         for i in range(0,Table.totalPlayers):
             self.playerChips[i]=500
+            self.playerIP[i]=socket.gethostname()
         self.blind=50
 
     def playHand(self):
@@ -197,9 +202,9 @@ class Hand(Table):                              # class created for each hand of
                 if self.players[i][3]==True:
                     print(i)
                     if currentBet != 0:
-                        action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")      #no need for input validation, will be signalled by ui
+                        action=lS.getInput(0)      #no need for input validation, will be signalled by ui
                     else:
-                        action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
+                        action=lS.getInput(0,table.playerIP[i])
                     if action == 'C':
                         if currentBet > self.players[i][2]-self.players[i][4]:
                             print("you can't afford to call so have been put all in")
