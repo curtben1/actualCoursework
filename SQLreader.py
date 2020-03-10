@@ -17,6 +17,16 @@ def readSQL(db, table, columnName, searchTerm):
     results=cur.fetchall()
     return results
 
+def readTable(db, table):
+    con = sql.connect(db)
+    cur = con.cursor()
+    table=(table,)
+    sqlcode="SELECT * FROM ?"   
+    cur.execute(sqlcode, (table,))
+    results=cur.fetchall()
+    return results
+
+
 #======================================================================================================================================================================
 
 def writeSQL6(db,table , newValue):
