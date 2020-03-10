@@ -34,7 +34,7 @@ from threading import *
 import SQLreader as sql
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = socket.gethostname()
+host = "0.0.0.0"
 port = 7070
 ipdict={}
 print (host)
@@ -52,9 +52,12 @@ class client(Thread):
         while 1:
             uName=self.sock.recv(1024)
             uName=uName.decode("ascii")
-            if ipdict[uName]==None:
-                ipdict[uName]=self.addr       # adds the ip info to a dictionary using the username as a key
-            self.sock.send('connected')        #sends back a confirmation message
+            if uName != "":
+                ipdict[uName]=self.addr        # adds the ip info to a dictionary using the username as a key
+                print(ipdict)
+                conf="connected"
+                conf=conf.encode("ascii")
+                self.sock.send(conf)        # sends back a confirmation message
 
 serversocket.listen(5)
 print ('server started and listening')
