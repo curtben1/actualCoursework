@@ -2,7 +2,7 @@ import mainloop as mL
 import socket
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = ""   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+host = "86.173.43.185"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
 port = 7070 # port forward this on my router
 s.connect((host, port))                            
 
@@ -19,3 +19,4 @@ def main():
         s.close()
         print (msg.decode('ascii'))
 
+main() 
