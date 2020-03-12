@@ -55,9 +55,11 @@ class client(Thread):
             if uName != "":
                 ipdict[uName]=self.addr        # adds the ip info to a dictionary using the username as a key
                 print(ipdict)
-                conf="connected"
-                conf=conf.encode("ascii")
-                self.sock.send(conf)        # sends back a confirmation message
+            conf="connected"
+            conf=conf.encode("ascii")
+            self.sock.send(conf)        # sends back a confirmation message
+            
+
 
 serversocket.listen(5)
 print ('server started and listening')
