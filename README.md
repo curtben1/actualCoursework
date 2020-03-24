@@ -70,4 +70,6 @@ Next tasks:
 
     Aspirational targets or more write up work time dependant 
 
+
+Note: the reason for recent inactivity is time spent learning python's socket api in test files etc
  
