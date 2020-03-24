@@ -390,7 +390,7 @@ class Hand(Table):                              # class created for each hand of
                     if straight >=5:
                         return highCard             # 5 most relevant cards are the straight so no extra info is needed
                     i=i+1                                           
-                else:                               # a while else loop because legacy version used break to escape while loop rather than appropriate condition                                                                                fuck you thats why
+                else:                               # a while else loop because legacy version used break to escape while loop rather than appropriate condition                                                                                
                     return False
             else:
                 return False
