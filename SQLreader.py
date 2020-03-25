@@ -26,7 +26,6 @@ def readTable(db, table):
     results=cur.fetchall()
     return results
 
-
 #======================================================================================================================================================================
 
 def writeSQL6(db,table , newValue):
@@ -34,7 +33,7 @@ def writeSQL6(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0], newValue[1], newValue[2], newValue[3], newValue[4], newValue[5]))
+    cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2], newValue[3], newValue[4], newValue[5]))
     cur.fetchall()
     
 def writeSQL5(db,table , newValue):
@@ -42,7 +41,7 @@ def writeSQL5(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0], newValue[1], newValue[2], newValue[3], newValue[4],))
+    cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2], newValue[3], newValue[4],))
     cur.fetchall()
 
 def writeSQL4(db,table , newValue):
@@ -50,7 +49,7 @@ def writeSQL4(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0], newValue[1], newValue[2], newValue[3],))
+    cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2], newValue[3],))
     cur.fetchall()
 
 def writeSQL3(db,table , newValue):
@@ -58,7 +57,7 @@ def writeSQL3(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0], newValue[1], newValue[2],))
+    cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2],))
     cur.fetchall()
     
 def writeSQL2(db,table , newValue):
@@ -66,7 +65,7 @@ def writeSQL2(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0], newValue[1],))
+    cur.execute(sqlcode,(table, newValue[0], newValue[1],))
     cur.fetchall()
 
 def writeSQL1(db,table , newValue):
@@ -74,7 +73,7 @@ def writeSQL1(db,table , newValue):
     cur = con.cursor()
     table=(table,)    
     sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode(table, newValue[0],))
+    cur.execute(sqlcode,(table, newValue[0],))
     cur.fetchall()
     
 #======================================================================================================================================================================
