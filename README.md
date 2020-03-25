@@ -59,6 +59,8 @@ Already done:
 Next tasks: 
 
     Make the main loop actually ask other people via networking rather than local console inputs and a basic server browser for testing 
+    
+    logons and passwords and all other account infrastructure
 
     Statistics recorder 
 
