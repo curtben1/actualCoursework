@@ -55,6 +55,8 @@ class client(Thread):
             if inp == "sList":
                 conf=sql.readTable("mainDatabase.db", "serverList")
                 print(conf)
+            elif inp == "stats":
+                pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
             elif inp != "":  
                 ipdict[inp]=self.addr        # adds the ip info to a dictionary using the username as a key
