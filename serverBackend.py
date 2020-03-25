@@ -53,12 +53,13 @@ class client(Thread):
             inp=self.sock.recv(1024)
             inp=inp.decode("ascii")
             if inp == "sList":
-                sList=sql.readTable("mainDatabase.db", "serverList")
-                print(sList)
+                conf=sql.readTable("mainDatabase.db", "serverList")
+                print(conf)
+                
             elif inp != "":  
                 ipdict[inp]=self.addr        # adds the ip info to a dictionary using the username as a key
                 print(ipdict)
-            conf="connected"
+                conf="connected"
             conf=conf.encode("ascii")
             self.sock.send(conf)        # sends back a confirmation message
             
