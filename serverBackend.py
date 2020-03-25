@@ -50,10 +50,12 @@ class client(Thread):
 
     def run(self):
         while 1:
-            uName=self.sock.recv(1024)
-            uName=uName.decode("ascii")
-            if uName != "":
-                ipdict[uName]=self.addr        # adds the ip info to a dictionary using the username as a key
+            inp=self.sock.recv(1024)
+            uName=inp.decode("ascii")
+            if uName == "sList":
+                sList=sql.readTable(mainDatabase.db, serverList)
+            elif uName != ""    
+                ipdict[inp]=self.addr        # adds the ip info to a dictionary using the username as a key
                 print(ipdict)
             conf="connected"
             conf=conf.encode("ascii")
