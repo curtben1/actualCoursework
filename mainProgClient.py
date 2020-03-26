@@ -19,6 +19,6 @@ def main():
         s.close()
         print (msg.decode('ascii'))
     elif menu == "VIEW":
-        
+        pass
 
 main() 
