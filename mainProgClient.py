@@ -17,8 +17,13 @@ def main():
         s.send(uName)                             
         msg = s.recv(1024)                                     
         s.close()
-        print (msg.decode('ascii'))
+        msg = msg.decode('ascii')
     elif menu == "VIEW":
-        pass
+        request = "sList"
+        request=request.encode("ascii")
+        s.send()
+        msg=s.recv(1024)
+        msg=msg.decode("ascii")
+    return msg
 
 main() 
