@@ -22,7 +22,7 @@ def readTable(db, table):
     cur = con.cursor()
     table=(table,)
     sqlcode="SELECT * FROM ?"   
-    cur.execute(sqlcode, (table,))
+    cur.execute(sqlcode, table)
     results=cur.fetchall()
     return results
 
