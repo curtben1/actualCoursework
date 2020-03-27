@@ -56,6 +56,7 @@ class client(Thread):
                 reply=sql.readTable("mainDatabase.db", "serverList")
                 print(reply)
             elif inp == "stats":
+                reply=sql.readTable("mainDatabase.db", "Statistics")
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
             elif inp != "":  
