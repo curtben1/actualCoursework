@@ -17,11 +17,19 @@ def readSQL(db, table, columnName, searchTerm):
     results=cur.fetchall()
     return results
 
-def readTable():
+def readsList():
     con = sql.connect("mainDatabase.db")
     cur = con.cursor()
     #table=(table,)  
     cur.execute("SELECT *FROM serverList")
+    results=cur.fetchall()
+    return results
+
+def readStats():
+    con = sql.connect("mainDatabase.db")
+    cur = con.cursor()
+    #table=(table,)  
+    cur.execute("SELECT *FROM Statitics")
     results=cur.fetchall()
     return results
 

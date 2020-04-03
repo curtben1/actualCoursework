@@ -54,10 +54,10 @@ class client(Thread):
             inp=inp.decode("ascii")
             if inp == "sList":
                 reply=""
-                reply=sql.readTable("mainDatabase.db", "serverList")
+                reply=sql.readsList()
                 print(reply)
             elif inp == "stats":
-                reply=sql.readTable("mainDatabase.db", "Statistics")
+                reply=sql.readStats()
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
             elif inp != "":  
