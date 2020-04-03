@@ -1,6 +1,6 @@
 import sqlite3 as sql
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
+##from cryptography.hazmat.backends import default_backend
+##from cryptography.hazmat.primitives.asymmetric import rsa
 
 """
 Contains functions necessary for reading/writing to an sql database
@@ -17,12 +17,11 @@ def readSQL(db, table, columnName, searchTerm):
     results=cur.fetchall()
     return results
 
-def readTable(db, table):
-    con = sql.connect(db)
+def readTable():
+    con = sql.connect("mainDatabase.db")
     cur = con.cursor()
-    table=(table,)
-    sqlcode="SELECT * FROM ?"   
-    cur.execute(sqlcode, (table,))
+    #table=(table,)  
+    cur.execute("SELECT *FROM serverList")
     results=cur.fetchall()
     return results
 
@@ -32,7 +31,7 @@ def writeSQL6(db,table , newValue):
     con = sql.connect(db)
     cur = con.cursor()
     table=(table,)    
-    sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
+    sqlcode='INSERT INTO ? VALUES (?,?,?,?,?,?) '
     cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2], newValue[3], newValue[4], newValue[5]))
     cur.fetchall()
     
