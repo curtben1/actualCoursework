@@ -4,3 +4,5 @@
 =======
 
 mainDatabase.db
+.vscode/settings.json
+__pycache__/mainloop.cpython-37.pyc
