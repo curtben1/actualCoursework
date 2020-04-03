@@ -5,3 +5,4 @@
 
 mainDatabase.db
 __pycache__/SQLreader.cpython-37.pyc
+.vscode/settings.json

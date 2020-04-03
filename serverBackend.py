@@ -67,7 +67,10 @@ class client(Thread):
             try:
                 reply=reply.encode("ascii")
                 self.sock.send(reply)        # sends back a confirmation message
+                print("sent")
+                break
             except:
+                print("not sent")
                 pass
             
 
