@@ -2,11 +2,11 @@ import mainloop as mL
 import socket
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "86.168.151.34"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+host = "81.135.23.51"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
 port = 7070 # port forward this on my router
 s.connect((host, port))                            
 
-def main():
+def login():                # may need to make each of these there there own function for when ui gets integrated
     menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")
     if menu=="LOCAL":
         table=mL.Table()
@@ -21,9 +21,9 @@ def main():
     elif menu == "VIEW":
         request = "sList"
         request=request.encode("ascii")
-        s.send()
+        s.send(request)
         msg=s.recv(1024)
         msg=msg.decode("ascii")
     return msg
 
-main() 
+login()
