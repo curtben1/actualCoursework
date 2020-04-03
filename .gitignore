@@ -4,5 +4,9 @@
 =======
 
 mainDatabase.db
+<<<<<<< HEAD
 .vscode/settings.json
 __pycache__/mainloop.cpython-37.pyc
+=======
+
+>>>>>>> 57c042f4944be1776ce6ab65ce26961f171998ed
