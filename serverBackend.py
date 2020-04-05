@@ -6,6 +6,7 @@ server backend code using the sql reading libraries functions
 import socket
 from threading import *
 import SQLreader as sql
+import pickle
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = "0.0.0.0"
@@ -29,17 +30,18 @@ class client(Thread):
             if inp == "sList":
                 reply=""
                 reply=sql.readsList()
-                print(reply)
+                reply=pickle.dumps(reply)
             elif inp == "stats":
                 reply=sql.readStats()
+                reply=reply.encode("ascii")
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
             elif inp != "":  
                 ipdict[inp]=self.addr        # adds the ip info to a dictionary using the username as a key
                 print(ipdict)
                 reply="connected"
-            try:
                 reply=reply.encode("ascii")
+            try:
                 self.sock.send(reply)        # sends back a confirmation message
                 print("sent")
                 break
