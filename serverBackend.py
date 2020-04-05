@@ -11,7 +11,6 @@ import pickle
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = "0.0.0.0"
 port = 7070
-ipdict={}
 print (host)
 print (port)
 serversocket.bind((host, port))
@@ -37,8 +36,8 @@ class client(Thread):
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
             elif inp != "":  
-                ipdict[inp]=self.addr        # adds the ip info to a dictionary using the username as a key
-                print(ipdict)
+                inparray=[inp,self.addr]        # adds the ip info to a dictionary using the username as a key
+                sql.writeHost(inparray)
                 reply="connected"
                 reply=reply.encode("ascii")
             try:

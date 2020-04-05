@@ -67,12 +67,11 @@ def writeSQL3(db,table , newValue):
     cur.execute(sqlcode,(table, newValue[0], newValue[1], newValue[2],))
     cur.fetchall()
     
-def writeSQL2(db,table , newValue):
-    con = sql.connect(db)
-    cur = con.cursor()
-    table=(table,)    
-    sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode,(table, newValue[0], newValue[1],))
+def writeHost(newValue):
+    con = sql.connect("mainDatabase.db")
+    cur = con.cursor()   
+    sqlcode="INSERT INTO serverList VALUES (Null,?,?,1) "   
+    cur.execute(sqlcode,(newValue[0], newValue[1],))
     cur.fetchall()
 
 def writeSQL1(db,table , newValue):
