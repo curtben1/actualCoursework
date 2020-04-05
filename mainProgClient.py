@@ -1,5 +1,6 @@
 import mainloop as mL
 import socket
+import pickle
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 host = "86.170.85.22"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
@@ -23,7 +24,7 @@ def login():                # may need to make each of these there there own fun
         request=request.encode("ascii")
         s.send(request)
         msg=s.recv(1024)
-        msg=msg.decode("ascii")
+        msg=pickle.loads(msg)
     return msg
 
-login()
+print(login())
