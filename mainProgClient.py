@@ -7,8 +7,7 @@ host = "86.170.85.22"   # ip of my home pc add this in later and maybe replace w
 port = 7070 # port forward this on my router
 s.connect((host, port))                            
 
-def login():                # may need to make each of these there there own function for when ui gets integrated
-    menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")
+def login(menu):                # may need to make each of these there there own function for when ui gets integrated
     if menu=="LOCAL":
         table=mL.Table()
         table.playHand()
@@ -27,4 +26,15 @@ def login():                # may need to make each of these there there own fun
         msg=pickle.loads(msg)
     return msg
 
-print(login())
+
+
+def menu():
+    menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")
+    result=login(menu)
+    if menu=="VIEW":
+        print(result)
+        selection=input("which server would you like to connect to (By serverID): ")
+        for i in range(0,len(result)):
+            if result[i][0]==selection:
+                newip=result[i][2]
+                
