@@ -112,11 +112,12 @@ class Table:                                    # class created to run and store
         for i in range(0,Table.totalPlayers):
             self.playerChips[i]=500
         self.blind=50
+        self.connected = connected
 
     def playHand(self):
         self.hands=self.hands+1
         self.blind=self.blind*2
-        self.newhand=Hand(self.blind)
+        self.newhand=Hand(self.blind,self.connected)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
