@@ -203,7 +203,7 @@ class Hand(Table):                              # class created for each hand of
                         if i == 0:
                             action=input(output)      #no need for input validation, will be signalled by ui
                         else:
-                            pass                        # ask for over network and take answer                                                            # 
+                            pass                        # ask for over network and take answer                                                       
                     else:
                         output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n "
                         if i == 0:
