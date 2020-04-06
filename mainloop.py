@@ -134,13 +134,14 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind):                         # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,connected):                         # shuffles the deck, initialises the player library and deals the cards
         self.sBlind=sBlind
         self.bBlind=sBlind*2
         self.deck=shuffle()                     
         self.players={}
         self.centre=[]
         self.round=0
+        self.connected=connected
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
             self.players[i]=[]
@@ -197,12 +198,24 @@ class Hand(Table):                              # class created for each hand of
                 if self.players[i][3]==True:
                     print(i)
                     if currentBet != 0:
-                        action=input("Do you want to \nCall(C)\nRaise(R)\nFold(F)\n ")      #no need for input validation, will be signalled by ui
+                        output="Do you want to \nCall(C)\nRaise(R)\nFold(F)\n "
+                        if i == 0:
+                            action=input(output)      #no need for input validation, will be signalled by ui
+                        else:
+                            pass                        # ask for over network and take answer                                                            # 
                     else:
-                        action=input("Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n ")
+                        output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n "
+                        if i == 0:
+                            action=input(output)
+                        else:
+                            pass                        # ask for over network and take answer
                     if action == 'C':
                         if currentBet > self.players[i][2]-self.players[i][4]:
-                            print("you can't afford to call so have been put all in")
+                            output="you can't afford to call so have been put all in"
+                            if i == 0:
+                                print(output)
+                            else:
+                                pass                                                # send over network
                             bet=self.players[i][2]-self.players[i][4]
                         else:
                             bet=currentBet
@@ -211,16 +224,36 @@ class Hand(Table):                              # class created for each hand of
                         raiser=i
                         raised=counter
                         if currentBet > self.players[i][2]-self.players[i][4]:
-                            print("you can't afford to call so have been put all in")
+                            output="you can't afford to call so have been put all in"
+                            if i == 0:
+                                print("output")
+                            else:
+                                pass                                                # send over network
                         else:
-                            amount= int(input("How much do you want to raise it by? "))
+                            output="How much do you want to raise it by? "
+                            if i == 0:
+                                amount= int(input(amount))
+                            else:
+                                pass                                                # send over network and take answer
                             bet=currentBet+amount
                             while bet > self.players[i][2]-self.players[i][4] and amount<self.bBlind:
                                 if bet> self.players[i][2]-self.players[i][4]:
-                                    print("You can't afford the bet")
+                                    output="You can't afford the bet"
+                                    if i==0:
+                                        print(output)
+                                    else:
+                                        pass                                        # send over network
                                 else:
-                                    print("that is below the minimum raise of the big blind")       # when doing a ui add an option to change your mind esp at this point
-                                amount=int(input("How much do you want to raise it by? "))
+                                    output="that is below the minimum raise of the big blind"
+                                    if i == 0:       # when doing a ui add an option to change your mind esp at this point
+                                        print(output)
+                                    else:
+                                        pass                                        # send over network
+                                output="How much do you want to raise it by? "
+                                if i == 0:
+                                    amount=int(input(output))
+                                else:
+                                    pass                                            # send and recieve over the network
                                 bet=currentBet+amount
                             currentBet=bet
                     elif action == 'F':
