@@ -37,4 +37,8 @@ def menu():
         for i in range(0,len(result)):
             if result[i][0]==selection:
                 newip=result[i][2]
-                
+                port=8080
+                s.connect((newip,port))
+                transmission="join request"
+                transmission = transmission.encode("ascii")
+                s.send(transmission)
