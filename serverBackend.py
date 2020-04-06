@@ -35,9 +35,9 @@ class client(Thread):
                 reply=reply.encode("ascii")
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
-            elif inp != "":  
-                inparray=[inp,self.addr]        # adds the ip info to a dictionary using the username as a key
-                sql.writeHost(inparray)
+            elif inp != "":
+                ipaddr=str(self.addr[0])
+                sql.writeHost(inp,ipaddr)
                 reply="connected"
                 reply=reply.encode("ascii")
             try:
