@@ -104,8 +104,8 @@ def shuffle():
 class Table:                                    # class created to run and store logic about the current game and everyone at the "table"
     totalPlayers=0
     playerChips={}
-    def __init__(self):
-        Table.totalPlayers=int(input("how many players"))
+    def __init__(self, connected):
+        Table.totalPlayers=len(connected)
         ##self.playerChips={}
         self.hands=0
         
@@ -519,3 +519,5 @@ class Hand(Table):                              # class created for each hand of
             if cards[i][1]==suit:
                 newArray.append(cards[i])
         return newArray
+
+        

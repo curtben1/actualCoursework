@@ -39,6 +39,6 @@ def menu():
                 newip=result[i][2]
                 port=8080
                 s.connect((newip,port))
-                transmission="join request"
+                transmission= input("enter your username: ")
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
