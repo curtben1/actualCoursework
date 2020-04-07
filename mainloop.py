@@ -169,6 +169,7 @@ class Hand(Table):                              # class created for each hand of
         host=ipaddr
         port = 8080
         s.connect((host, port))
+        message = "0" + message
         message = message.encode("ascii")
         s.send(message)
 
@@ -177,6 +178,7 @@ class Hand(Table):                              # class created for each hand of
         host=ipaddr
         port = 8080
         s.connect((host, port))
+        message = "1" + message
         message = message.encode("ascii")
         s.send(message)
         reply=s.recv(1024)

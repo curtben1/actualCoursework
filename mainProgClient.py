@@ -26,7 +26,22 @@ def login(menu):                # may need to make each of these there there own
         msg=pickle.loads(msg)
     return msg
 
-
+def playGame(host):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    host = "0.0.0.0"   # ip of my home pc maybe replace with pasberry pi for constant service                         
+    port = 8080
+    s.bind((host, port))
+    s.listen(5)
+    while True:
+        cs, address = s.accept()
+        msg=cs.recv(1024)
+        msg=msg.decode("ascii")   
+        if msg[0] == "0":           #if it is just a message with no return necessary
+            print(msg)
+        else:                       # if the message needs to print and then take an input and retransmit
+            reply=input(msg)
+            reply.encode("ascii")
+            cs.send(reply)
 
 def menu():
     menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")
@@ -42,3 +57,5 @@ def menu():
                 transmission= input("enter your username: ")
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
+                playGame(newip)
+
