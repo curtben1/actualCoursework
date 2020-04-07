@@ -1,4 +1,5 @@
 import random
+import socket
 """
 main logic for a poker game
 
@@ -162,7 +163,26 @@ class Hand(Table):                              # class created for each hand of
             self.players[y].append(True)
             self.players[y].append(0)
         print(self.players,'\n', self.centre)
-        
+
+    def sendText(self,ipaddr, message):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host=ipaddr
+        port = 8080
+        s.connect((host, port))
+        message = message.encode("ascii")
+        s.send(message)
+
+    def recvText(self, ipaddr, message):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host=ipaddr
+        port = 8080
+        s.connect((host, port))
+        message = message.encode("ascii")
+        s.send(message)
+        reply=s.recv(1024)
+        reply=reply.decode("ascii")
+        return reply
+
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
         currentBet=0
@@ -203,7 +223,7 @@ class Hand(Table):                              # class created for each hand of
                         if i == 0:
                             action=input(output)      #no need for input validation, will be signalled by ui
                         else:
-                            pass                        # ask for over network and take answer                                                       
+                            action = self.recvText(self.connected[i], output)                        # ask for over network and take answer                                                       
                     else:
                         output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n "
                         if i == 0:
@@ -216,7 +236,7 @@ class Hand(Table):                              # class created for each hand of
                             if i == 0:
                                 print(output)
                             else:
-                                pass                                                # send over network
+                                self.sendText(self.connected[i], output)                                                # send over network
                             bet=self.players[i][2]-self.players[i][4]
                         else:
                             bet=currentBet
@@ -229,13 +249,13 @@ class Hand(Table):                              # class created for each hand of
                             if i == 0:
                                 print("output")
                             else:
-                                pass                                                # send over network
+                                self.sendText(self.connected[i], output)                                                # send over network
                         else:
                             output="How much do you want to raise it by? "
                             if i == 0:
                                 amount= int(input(amount))
                             else:
-                                pass                                                # send over network and take answer
+                                action = self.recvText(self.connected[i], output)                                                  # send over network and take answer
                             bet=currentBet+amount
                             while bet > self.players[i][2]-self.players[i][4] and amount<self.bBlind:
                                 if bet> self.players[i][2]-self.players[i][4]:
@@ -243,18 +263,18 @@ class Hand(Table):                              # class created for each hand of
                                     if i==0:
                                         print(output)
                                     else:
-                                        pass                                        # send over network
+                                        self.sendText(self.connected[i], output)                                        # send over network
                                 else:
                                     output="that is below the minimum raise of the big blind"
                                     if i == 0:       # when doing a ui add an option to change your mind esp at this point
                                         print(output)
                                     else:
-                                        pass                                        # send over network
+                                        self.sendText(self.connected[i], output)                                        # send over network
                                 output="How much do you want to raise it by? "
                                 if i == 0:
                                     amount=int(input(output))
                                 else:
-                                    pass                                            # send and recieve over the network
+                                    action = self.recvText(self.connected[i], output)                                              # send and recieve over the network
                                 bet=currentBet+amount
                             currentBet=bet
                     elif action == 'F':
