@@ -185,6 +185,9 @@ class Hand(Table):                              # class created for each hand of
         reply=reply.decode("ascii")
         return reply
 
+    def sendCards(self, ipaddr, dictionary):
+        pass
+
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
         currentBet=0
