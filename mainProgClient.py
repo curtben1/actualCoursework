@@ -37,9 +37,9 @@ def playGame(host):
         msg=cs.recv(1024)
         msg=msg.decode("ascii")   
         if msg[0] == "0":           #if it is just a message with no return necessary
-            print(msg)
+            print(msg[1:len(msg)-1])
         else:                       # if the message needs to print and then take an input and retransmit
-            reply=input(msg)
+            reply=input(msg[1:len(msg)-1])
             reply.encode("ascii")
             cs.send(reply)
 

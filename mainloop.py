@@ -164,7 +164,7 @@ class Hand(Table):                              # class created for each hand of
             self.players[y].append(0)
         print(self.players,'\n', self.centre)
 
-    def sendText(self,ipaddr, message):
+    def sendText(self,ipaddr, message):                # no return, sends message to the ip listed on port 8080
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         host=ipaddr
         port = 8080
@@ -173,7 +173,7 @@ class Hand(Table):                              # class created for each hand of
         message = message.encode("ascii")
         s.send(message)
 
-    def recvText(self, ipaddr, message):
+    def recvText(self, ipaddr, message):            #returns the response to the question ask
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         host=ipaddr
         port = 8080
@@ -185,7 +185,8 @@ class Hand(Table):                              # class created for each hand of
         reply=reply.decode("ascii")
         return reply
 
-    def sendCards(self, ipaddr, dictionary):
+    def sendCards(self, ipaddr):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         pass
 
     def bettingRound(self):                     # no return, acts on self variable only
