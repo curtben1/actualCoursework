@@ -26,7 +26,7 @@ def login(menu):                # may need to make each of these there there own
         msg=pickle.loads(msg)
     return msg
 
-def playGame(host):
+def playGame():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     host = "0.0.0.0"   # ip of my home pc maybe replace with pasberry pi for constant service                         
     port = 8080
@@ -57,5 +57,6 @@ def menu():
                 transmission= input("enter your username: ")
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
-                playGame(newip)
+                playGame()
 
+playGame()
