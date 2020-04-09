@@ -33,12 +33,12 @@ class client(Thread):
             inp=self.sock.recv(1024)
             inp=inp.decode("ascii")
             players.append(inp,self.addr)
-
-serversocket.listen(5)
-print ('server started and listening')
-while 1:
-    clientsocket, address = serversocket.accept()
-    client(clientsocket, address)
+def listen():
+    serversocket.listen(5)
+    print ('server started and listening')
+    while 1:
+        clientsocket, address = serversocket.accept()
+        client(clientsocket, address)
     
     
             

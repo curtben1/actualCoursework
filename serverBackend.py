@@ -40,6 +40,7 @@ class client(Thread):
                 sql.writeHost(inp,ipaddr)
                 reply="connected"
                 reply=reply.encode("ascii")
+                
             try:
                 self.sock.send(reply)        # sends back a confirmation message
                 print("sent")

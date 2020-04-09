@@ -1,4 +1,5 @@
 import mainloop as mL
+import gamehost as gh
 import socket
 import pickle
 
@@ -58,5 +59,7 @@ def menu():
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
                 playGame()
+    elif menu=="HOST":
+        gh.listen()
 
 playGame()
