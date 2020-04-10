@@ -9,6 +9,7 @@ host = "0.0.0.0"
 port = 8080
 serversocket.bind((host, port))
 players=["host","0.0.0.0"]
+
 def addPlayer(uName,address):
     players.append(uName,address)
     Continue=input("another player joined would you like to start or keep waiting (PLAY to start game)")
@@ -32,7 +33,8 @@ class client(Thread):
         while True:
             inp=self.sock.recv(1024)
             inp=inp.decode("ascii")
-            players.append(inp,self.addr)
+            addPlayer(inp,self.addr)
+
 def listen():
     serversocket.listen(5)
     print ('server started and listening')
