@@ -62,4 +62,5 @@ def menu():
     elif menu=="HOST":
         gh.listen()
 
-playGame()
+menu()
+
