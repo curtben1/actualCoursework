@@ -4,7 +4,7 @@ import socket
 import pickle
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "86.170.85.22"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+host = "86.141.115.91"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
 port = 7070 # port forward this on my router
 s.connect((host, port))                            
 
