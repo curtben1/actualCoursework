@@ -58,7 +58,7 @@ Already done:
 
 Next tasks: 
 
-    Make the main loop actually ask other people via networking rather than local console inputs and a basic server browser for testing 
+    test my network integration and update all users on everyone's actions
     
     logons and passwords and all other account infrastructure
 
@@ -66,12 +66,10 @@ Next tasks:
 
     Better client side handling to make non ui test viable 
 
-    Complete server browser 
-
     User interface 
 
     Aspirational targets or more write up work time dependant 
 
 
-Note: the reason for recent inactivity is time spent learning python's socket api in test files etc
+Note: the reason for recent inactivity is because I need a 3rd python enabled device for testing
  
