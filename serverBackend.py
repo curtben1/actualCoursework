@@ -49,11 +49,8 @@ class client(Thread):
                 print("not sent")
                 pass
             
-
-
 serversocket.listen(5)
 print ('server started and listening')
 while 1:
     clientsocket, address = serversocket.accept()
     client(clientsocket, address)
-    
