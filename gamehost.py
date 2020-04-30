@@ -17,9 +17,6 @@ def addPlayer(uName,address):
         table=ml.Table(players)
         table.playHand()
 
-
-
-
 class client(Thread):
     def __init__(self, socket, address):
         Thread.__init__(self)
@@ -27,9 +24,7 @@ class client(Thread):
         self.addr = address
         self.start()
         
-
     def run(self):
-
         while True:
             inp=self.sock.recv(1024)
             inp=inp.decode("ascii")
@@ -41,4 +36,3 @@ def listen():
     while 1:
         clientsocket, address = serversocket.accept()
         client(clientsocket, address)
-
