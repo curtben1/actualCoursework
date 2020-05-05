@@ -166,17 +166,18 @@ class Hand(Table):                              # class created for each hand of
 
     def sendText(self,ipaddr, message):                # no return, sends message to the ip listed on port 8080
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host=ipaddr
-        port = 8080
+        host=ipaddr[1]
+        port = 50984
         s.connect((host, port))
         message = "0" + message
         message = message.encode("ascii")
         s.send(message)
 
     def recvText(self, ipaddr, message):            #returns the response to the question ask
+        print(ipaddr)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host=ipaddr
-        port = 8080
+        host = ipaddr[1]
+        port = 50984
         s.connect((host, port))
         message = "1" + message
         message = message.encode("ascii")
@@ -218,6 +219,8 @@ class Hand(Table):                              # class created for each hand of
                 blinds=True
 
             while i < len(self.players) and ((i<raiser and counter==raised+1) or raised == counter) and remaining>1:
+                if i !=0:
+                    print("not zero",i)
                 if blinds==True and i==0:
                     currentBet=currentBet-self.sBlind 
                 elif blinds==True and i==1:
@@ -235,14 +238,14 @@ class Hand(Table):                              # class created for each hand of
                         if i == 0:
                             action=input(output)
                         else:
-                            pass                        # ask for over network and take answer
+                            action = self.recvText(self.connected[i], output)                        # ask for over network and take answer
                     if action == 'C':
                         if currentBet > self.players[i][2]-self.players[i][4]:
                             output="you can't afford to call so have been put all in"
                             if i == 0:
                                 print(output)
                             else:
-                                self.sendText(self.connected[i], output)                                                # send over network
+                                self.sendText(self.connected[i][1], output)                                                # send over network
                             bet=self.players[i][2]-self.players[i][4]
                         else:
                             bet=currentBet
@@ -255,7 +258,7 @@ class Hand(Table):                              # class created for each hand of
                             if i == 0:
                                 print("output")
                             else:
-                                self.sendText(self.connected[i], output)                                                # send over network
+                                self.sendText(self.connected[i][1], output)                          # send over network
                         else:
                             output="How much do you want to raise it by? "
                             if i == 0:
@@ -286,7 +289,7 @@ class Hand(Table):                              # class created for each hand of
                     elif action == 'F':
                         bet = 0
                         self.players[i][3]= False
-                    self.players[i][4]= self.players[i][4] + bet        #alters ther individual players contribution
+                    self.players[i][4]= self.players[i][4] + bet        # alters their individual players contribution
                 i += 1
                 remaining=0
                 for j in range(0,len(self.players)):

@@ -36,3 +36,5 @@ def listen():
     while 1:
         clientsocket, address = serversocket.accept()
         client(clientsocket, address)
+
+listen()
