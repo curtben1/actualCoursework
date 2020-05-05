@@ -35,6 +35,10 @@ def listen():
     print ('server started and listening')
     while 1:
         clientsocket, address = serversocket.accept()
+<<<<<<< Updated upstream
         client(clientsocket, address)
 
 listen()
+=======
+        client(clientsocket, address)
+>>>>>>> Stashed changes
