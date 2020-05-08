@@ -8,12 +8,12 @@ from threading import *
 import SQLreader as sql
 import pickle
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "0.0.0.0"
-port = 7070
+serversocket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0)
+host = ""
+port = 5050
 print (host)
 print (port)
-serversocket.bind((host, port))
+serversocket.bind((host, port,))
 
 class client(Thread):
     def __init__(self, socket, address):
