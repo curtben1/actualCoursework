@@ -3,10 +3,10 @@ import gamehost as gh
 import socket
 import pickle
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "86.141.115.91"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
-port = 7070 # port forward this on my router
-s.connect((host, port))                            
+s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0) 
+host = "fe80::39b0:4ce0:2650:b998%4"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+port = 5050 # port forward this on my router
+s.connect((host, port,0,0))                            
 
 def login(menu):                # may need to make each of these there there own function for when ui gets integrated
     if menu=="LOCAL":
