@@ -147,6 +147,10 @@ class Hand(Table):                              # class created for each hand of
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
             self.players[i]=[]
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host=""
+        port = 8080
+        self.s.bind((host, port))
   
     def deal(self):                             # no return
             
@@ -165,13 +169,9 @@ class Hand(Table):                              # class created for each hand of
         print(self.players,'\n', self.centre)
 
     def sendText(self,ipaddr, message):                # no return, sends message to the ip listed on port 8080
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host=ipaddr
-        port = 8080
-        s.connect((host, port))
         message = "0" + message
         message = message.encode("ascii")
-        s.send(message)
+        s.sendto(message,(ipaddr,8080))
 
     def recvText(self, ipaddr, message):            #returns the response to the question ask
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
