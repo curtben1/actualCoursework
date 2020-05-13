@@ -13,7 +13,7 @@ host = ""
 port = 5050
 print (host)
 print (port)
-serversocket.bind((host, port,))
+serversocket.bind((host, port,0,0))
 
 class client(Thread):
     def __init__(self, socket, address):
