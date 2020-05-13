@@ -4,7 +4,7 @@ import socket
 import pickle
 
 s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0) 
-host = "fe80::39b0:4ce0:2650:b998%4"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+host = "2a00:23c5:c001:9800:7c71:7eb4:f28d:ed00"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
 port = 5050 # port forward this on my router
 s.connect((host, port,0,0))                            
 
@@ -27,11 +27,10 @@ def login(menu):                # may need to make each of these there there own
         msg=pickle.loads(msg)
     return msg
 
-def playGame():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    host = "0.0.0.0"   # ip of my home pc maybe replace with pasberry pi for constant service                         
+def playGame(hostAddr):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                  
     port = 8080
-    s.bind((host, port))
+    s.bind((hostAddr, port))
     s.listen(5)
     while True:
         cs, address = s.accept()
@@ -58,7 +57,7 @@ def menu():
                 transmission= input("enter your username: ")
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
-                playGame()
+                playGame(newip)
     elif menu=="HOST":
         gh.listen()
 
