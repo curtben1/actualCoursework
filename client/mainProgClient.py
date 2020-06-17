@@ -32,16 +32,16 @@ def playGame(hostAddr):
     port = 8080
     s.bind((hostAddr, port))
     s.listen(5)
-    while True:
-        cs, address = s.accept()
-        msg=cs.recv(1024)
-        msg=msg.decode("ascii")   
-        if msg[0] == "0":           #if it is just a message with no return necessary
-            print(msg[1:len(msg)-1])
-        else:                       # if the message needs to print and then take an input and retransmit
-            reply=input(msg[1:len(msg)-1])
-            reply.encode("ascii")
-            cs.send(reply)
+    message = s.recv()
+    message=message.decode('ascii')
+    if message == "joined game":
+        pass
+    else:
+        retry = input("something has gone wrong failed to connect to the host \nWould you like to retry the connection or quit \nType QUIT to exit the application ")       # might be hard to ui this so could return failure and abstract the choice back out to mainprogclient
+        if retry != "QUIT":
+            playGame(hostAddr)
+        else:
+            return "Game Over"
 
 def menu():
     menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")
@@ -50,16 +50,17 @@ def menu():
         print(result)
         selection=input("which server would you like to connect to (By serverID): ")
         for i in range(0,len(result)):
-            if result[i][0]==selection:
+            if result[i][0]==selection:             # all needs ipdating for new hole punch method, honestly might as well redo whole file at this point
                 newip=result[i][2]
                 port=8080
                 s.connect((newip,port))
                 transmission= input("enter your username: ")
                 transmission = transmission.encode("ascii")
                 s.send(transmission)
-                playGame(newip)
+                status = playGame(newip)
+                if status == "Game Over":
+                    menu()      # boots ended games back to menu, can have other status' with more info later if need be
     elif menu=="HOST":
         gh.listen()
 
 menu()
-

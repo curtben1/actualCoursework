@@ -1,4 +1,5 @@
 import random
+import client_A as CA
 import socket
 """
 main logic for a poker game
@@ -31,7 +32,7 @@ array/library formats:
     players         ={player:card1,card2,chips ,folded,contributed,Won objectives
                       player:card1,card2,chips ,folded,contributed,Won objectives}    
     
-    winner          =[player, contributed, beaten       # sorted by beaten
+    winner          =[player, contributed, beaten        // sorted by beaten
                       player, contributed, beaten]      
 todo:
     add some easier network integration by laying a decent foundation
@@ -102,9 +103,10 @@ def shuffle():
     random.shuffle(cards)
     return cards
 
-class Table:                                    # class created to run and store logic about the current game and everyone at the "table"
+class Table:                                    # class created to run and store logic about the current game and everyone at the "table" 
     totalPlayers=0
-    playerChips={}
+    playerChips={}          #some globalish variables I can then more easily inherit without passing to init and creating a bigger mess down the line
+
     def __init__(self, connected):
         Table.totalPlayers=len(connected)
         ##self.playerChips={}
@@ -114,6 +116,7 @@ class Table:                                    # class created to run and store
             self.playerChips[i]=500
         self.blind=50
         self.connected = connected
+
 
     def playHand(self):
         self.hands=self.hands+1
@@ -136,7 +139,7 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind,connected):                         # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,connected, groupSocket):                         # shuffles the deck, initialises the player library and deals the cards
         self.sBlind=sBlind
         self.bBlind=sBlind*2
         self.deck=shuffle()                     
@@ -151,7 +154,8 @@ class Hand(Table):                              # class created for each hand of
         host=""
         port = 8080
         self.s.bind((host, port))
-  
+        self.groupSocket = groupSocket
+
     def deal(self):                             # no return
             
         for i in range(0,2):
@@ -168,22 +172,13 @@ class Hand(Table):                              # class created for each hand of
             self.players[y].append(0)
         print(self.players,'\n', self.centre)
 
+
     def sendText(self,ipaddr, message):                # no return, sends message to the ip listed on port 8080
-        message = "0" + message
-        message = message.encode("ascii")
-        s.sendto(message,(ipaddr,8080))
+        CA.sendMsg(self.groupSocket, message, ipaddr)
 
     def recvText(self, ipaddr, message):            #returns the response to the question ask
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host=ipaddr
-        port = 8080
-        s.connect((host, port))
-        message = "1" + message
-        message = message.encode("ascii")
-        s.send(message)
-        reply=s.recv(1024)
-        reply=reply.decode("ascii")
-        return reply
+        retMsg = CA.recvMsg(self.groupSocket, message, ipaddr)
+        return retMsg
 
     def sendCards(self, ipaddr):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -261,7 +256,7 @@ class Hand(Table):                              # class created for each hand of
                             if i == 0:
                                 amount= int(input(amount))
                             else:
-                                action = self.recvText(self.connected[i], output)                                                  # send over network and take answer
+                                action = self.recvText(self.connected[i], output)                                       # send over network and take answer
                             bet=currentBet+amount
                             while bet > self.players[i][2]-self.players[i][4] and amount<self.bBlind:
                                 if bet> self.players[i][2]-self.players[i][4]:

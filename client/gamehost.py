@@ -1,7 +1,7 @@
 import socket
 from threading import *
 import SQLreader as sql
-import pickle
+import pickle 
 import mainloop as ml
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,6 +29,7 @@ class client(Thread):
             inp=self.sock.recv(1024)
             inp=inp.decode("ascii")
             addPlayer(inp,self.addr)
+            self.sock.send("joined game".encode("ascii"))
 
 def listen():
     serversocket.listen(5)
