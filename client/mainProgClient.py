@@ -4,9 +4,9 @@ import socket
 import pickle
 
 s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0) 
-host = "2a00:23c5:c001:9800:7c71:7eb4:f28d:ed00"   # ip of my home pc add this in later and maybe replace with pasberry pi                          
+host = "2a00:23c5:c001:9800:7c71:7eb4:f28d:ed00"   # ip of my home pc add this in later and maybe replace with pasberry pi
 port = 5050 # port forward this on my router
-s.connect((host, port,0,0))                            
+s.connect((host, port,0,0))
 
 def login(menu):                # may need to make each of these there there own function for when ui gets integrated
     if menu=="LOCAL":
@@ -15,8 +15,8 @@ def login(menu):                # may need to make each of these there there own
     elif menu=="HOST":
         uName=input("what is your username (no spaces)")        # A placeholder until actual usernames are implemented 
         uName=uName.encode("ascii")
-        s.send(uName)                             
-        msg = s.recv(1024)                                     
+        s.send(uName)
+        msg = s.recv(1024)
         s.close()
         msg = msg.decode('ascii')
     elif menu == "VIEW":
@@ -28,7 +28,7 @@ def login(menu):                # may need to make each of these there there own
     return msg
 
 def playGame(hostAddr):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)                  
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     port = 8080
     s.bind((hostAddr, port))
     s.listen(5)
