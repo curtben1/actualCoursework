@@ -2,19 +2,13 @@
 For use by someone connecting to a server
 """
 
-
-
 import socket
-import struct
 import sys
-import urllib
-import re
+from requests import get
 
-def get_ip():       # uses a website to get public ip, function from https://stackoverflow.com/questions/58294/how-do-i-get-the-external-ip-of-a-socket-in-python
-    group = re.compile(u'(?P<ip>\d+\.\d+\.\d+\.\d+)').search(urllib.URLopener().open('http://jsonip.com/').read()).groupdict()
-    return group['ip']
-
-
+def get_ip():       # uses a basic api to get my public ip address
+    ip = get('https://api.ipify.org').text
+    return ip
 
 def estCon():       # udp hole punching code adapted from 
     master = ("81.151.18.101",7070)     #add tuple of my pc address + a forwarded port
@@ -56,8 +50,9 @@ def main(socket):       # function that should normally be running when playing 
         dec = raw.decode("ascii")
         tag = dec.split(':')[0]    
         dispData = dec.split(':')[1]    
-        if tag == get_ip():        # maybe outsource this to mainprogClient so it can deal with each differently
+        if tag == get_ip():       
             return dispData
+
         elif tag == "forAll":
             return dispData
         

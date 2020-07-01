@@ -2,7 +2,7 @@ import random
 import client_A as CA
 import socket
 """
-main logic for a poker game
+main logic for a poker game, used by the game host
 
 objectives:
     calculate odds of winning
@@ -139,7 +139,7 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind,connected, groupSocket):                         # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,connected):                         # shuffles the deck, initialises the player library and deals the cards
         self.sBlind=sBlind
         self.bBlind=sBlind*2
         self.deck=shuffle()                     
@@ -150,11 +150,7 @@ class Hand(Table):                              # class created for each hand of
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
             self.players[i]=[]
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host=""
-        port = 8080
-        self.s.bind((host, port))
-        self.groupSocket = groupSocket
+        
 
     def deal(self):                             # no return
             

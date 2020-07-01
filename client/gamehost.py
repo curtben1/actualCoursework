@@ -1,6 +1,5 @@
 import socket
 from threading import *
-import SQLreader as sql
 import pickle 
 import mainloop as ml
 
@@ -8,10 +7,10 @@ serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = "0.0.0.0"
 port = 8080
 serversocket.bind((host, port))
-players=["host","0.0.0.0"]
+players=[["host","0.0.0.0"],]
 
 def addPlayer(uName,address):
-    players.append(uName,address)
+    players.append([uName,address])
     Continue=input("another player joined would you like to start or keep waiting (PLAY to start game)")
     if Continue == "PLAY":
         table=ml.Table(players)
