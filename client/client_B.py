@@ -48,7 +48,7 @@ def main(socket):       # function that should normally be running when playing 
     while True:
         raw = socket.recvfrom(1024)
         dec = raw.decode("ascii")
-        tag = dec.split(':')[0]    
+        tag = dec.split(':')[0]
         dispData = dec.split(':')[1]    
         if tag == get_ip():       
             return dispData
