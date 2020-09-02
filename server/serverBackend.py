@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 server backend code using the sql reading libraries functions
 """
@@ -8,12 +7,12 @@ from threading import *
 import SQLreader as sql
 import pickle
 
-serversocket = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0)
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = ""
 port = 5050
 print (host)
 print (port)
-serversocket.bind((host, port,0,0))
+serversocket.bind((host, port))
 
 class client(Thread):
     def __init__(self, socket, address):

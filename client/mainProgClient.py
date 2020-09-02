@@ -4,10 +4,10 @@ import socket
 import pickle
 import client_B as holepunch
 
-s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM,0) 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 host = "0.0.0.0"   # ip of my home pc add this in later and maybe replace with pasberry pi
 port = 5050 # port forward this on my router
-s.connect((host, port,0,0))
+s.connect(host, port)
 
 def options(menu):                
     if menu=="HOST":
