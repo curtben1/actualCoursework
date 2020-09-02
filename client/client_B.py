@@ -15,6 +15,7 @@ def estCon(hostIP):       # udp hole punching code adapted from
     host = hostIP
     port = 7080     #manually port forwarded because holepunching is too hard, will continue to pursue in free time
     gamesocket.bind((host, port))
+    return gamesocket
 
 def main(socket):       # function that should normally be running when playing a game, recives any incoming messages and return the 
     while True:
