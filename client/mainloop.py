@@ -107,7 +107,7 @@ class Table:                                    # class created to run and store
     totalPlayers=0
     playerChips={}          #some globalish variables I can then more easily inherit without passing to init and creating a bigger mess down the line
 
-    def __init__(self, connected):
+    def __init__(self, connected, groupSocket):
         Table.totalPlayers=len(connected)
         ##self.playerChips={}
         self.hands=0
@@ -116,12 +116,13 @@ class Table:                                    # class created to run and store
             self.playerChips[i]=500
         self.blind=50
         self.connected = connected
+        self.groupSocket = groupSocket
 
 
     def playHand(self):
         self.hands=self.hands+1
         self.blind=self.blind*2
-        self.newhand=Hand(self.blind,self.connected)
+        self.newhand=Hand(self.blind,self.connected, groupSocket)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
@@ -139,7 +140,7 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind,connected):                         # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,connected, groupSocket):    # shuffles the deck, initialises the player library and deals the cards
         self.sBlind=sBlind
         self.bBlind=sBlind*2
         self.deck=shuffle()                     
@@ -147,6 +148,7 @@ class Hand(Table):                              # class created for each hand of
         self.centre=[]
         self.round=0
         self.connected=connected
+        self.groupSocket = groupSocket
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
             self.players[i]=[]
@@ -176,7 +178,7 @@ class Hand(Table):                              # class created for each hand of
         retMsg = CA.recvMsg(self.groupSocket, message, ipaddr)
         return retMsg
 
-    def sendCards(self, ipaddr):
+    def sendCards(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         pass
 

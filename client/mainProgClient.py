@@ -26,7 +26,7 @@ def options(menu):
     return msg
 
 def playGame(hostAddr):     #the loop running while playing a remote game, should be constantly listening but also needs some holepunch modifications using client B
-    gamesocket = holepunch.estCon()
+    gamesocket = holepunch.estCon(hostAddr)
     while True:
         data = holepunch.main(gamesocket)
         if data == "Game Over":     #ends the game
