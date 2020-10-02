@@ -176,10 +176,14 @@ class Hand(Table):                              # class created for each hand of
         self.gameSocket.send(message)
 
     def recvText(self, playerNum, message):            #returns the response to the question ask
-        pass
+        message = str(playerNum)+ ':' + message
+        message = pickle.loads(message)
+        self.gameSocket.send(message)
+        while True:
+            data = self.gameSocket.recv(1024)
+            data = pickle.loads(data)
+        return data
 
-    def sendCards(self):
-        pass
 
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
@@ -548,4 +552,3 @@ class Hand(Table):                              # class created for each hand of
                 newArray.append(cards[i])
         return newArray
 
-        

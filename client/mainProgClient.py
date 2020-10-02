@@ -46,30 +46,14 @@ def playGame(serverNum, serverList):
     while True:
         data = gamesocket.recv(1024)
         data = pickle.loads(data)
+        if data == "game over":
+            return "Game Over"
         
-        
+def newServer():
+    sendval = 
+    s.send()
 
 
-
-
-
-
-
-
-
-
-
-        """if data == "Game Over":     #ends the game
-            break
-        elif data[0] == 1:        # means it needs a reply
-            output = data.substring(1,len(data)-2)
-            replyData = input(output)       # ui element
-            holepunch.reply(gamesocket, replyData)
-        else:       # just needs to be displayed
-            output = data.substring(1,len(data)-2)
-            print(output)       # ui element
-    return "Game Over"  # use this so I can return caught exceptions later
-"""
 def menu():     # the first function to get run
     menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")     # ui element
     result=options(menu)
@@ -80,6 +64,6 @@ def menu():     # the first function to get run
         if status == "Game Over":
             menu()      # boots ended games back to menu, can have other status' with more info later if need be
     elif menu=="HOST":
-        gh.listen()
+        newServer()
 
 menu()

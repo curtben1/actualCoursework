@@ -26,3 +26,4 @@ class gameServer:
         table = mainloop.Table(self.playerList, self.gameSock)
         while True:
             table.playHand()
+            
