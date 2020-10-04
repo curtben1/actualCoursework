@@ -143,28 +143,33 @@ class Hand(Table):                              # class created for each hand of
         self.sBlind=sBlind
         self.bBlind=sBlind*2
         self.deck=shuffle()                     
-        self.players={}
+        self.players=[]
         self.centre=[]
         self.round=0
         self.connected=connected
         self.gameSocket = gameSocket
         print(Table.totalPlayers)
         for i in range(0,Table.totalPlayers):
-            self.players[i]=[]
+            temp = Player()
+            self.players.append(temp)
         
 
     def deal(self):                             # no return
             
-        for i in range(0,2):
-            for j in range(0,Table.totalPlayers):
-                self.players[j].append(self.deck.pop(len(self.deck)-1))     ##make a dictionary of players which has cards and chips and player id same as one below so that it Player class can later inherit at the end of a hand
-            j=0
+        
+        for player in self.players:
+            player.card1(self.deck.pop(len(self.deck)-1))     ##make a dictionary of players which has cards and chips and player id same as one below so that it Player class can later inherit at the end of a hand
+        j=0
             
+        for j in range(0,Table.totalPlayers):
+            self.players[j].card1(self.deck.pop(len(self.deck)-1))
+
+
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
             
         for y in range(0,len(self.players)):
-            self.players[y].append(Table.playerChips[y])
+            self.players[y].chips = Table.playerChips[y]        # might need to use super and make this a child
             self.players[y].append(True)
             self.players[y].append(0)
         print(self.players,'\n', self.centre)
@@ -552,3 +557,25 @@ class Hand(Table):                              # class created for each hand of
                 newArray.append(cards[i])
         return newArray
 
+class Player:
+    def __init__(self):
+        self.folded = False
+        self.contriuted = 0
+        self.wonObjectives = None
+        self.chips = 0
+
+
+    def setCards(self,card1,card2):
+        self.card1 = card1
+        self.card2 = card2
+
+    
+
+
+"""
+
+
+
+players         ={player:card1,card2,chips ,folded,contributed,Won objectives
+                      player:card1,card2,chips ,folded,contributed,Won objectives}
+"""
