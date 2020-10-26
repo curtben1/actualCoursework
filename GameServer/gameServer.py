@@ -22,7 +22,7 @@ class gameServer:
                 pickleList = pickle.loads(self.playerList)
                 self.gameSock.sendall(pickleList)
             else:
-                votes + = 1
+                votes += 1
         table = mainloop.Table(self.playerList, self.gameSock)
         while True:
             table.playHand()

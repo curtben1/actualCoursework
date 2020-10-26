@@ -208,17 +208,17 @@ class Hand(Table):                              # class created for each hand of
             i = 0
             for j in range(0,len(self.players)):
                 if self.players[j].stillIn == True:
-                    remaining + = 1
+                    remaining += 1
             if self.round == 1 and blinds == False:           #code that facillitates small and big blind
                 self.players[i].contributed = self.sBlind
-                i + = 1
+                i += 1
                 self.players[i].contributed = self.bBlind
                 print(self.players)
                 currentBet = self.bBlind
                 raiser = i+1
                 raised = counter
                 again = True
-                i+ = 1
+                i+= 1
                 blinds = True
 
             while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and remaining>1:
@@ -267,11 +267,11 @@ class Hand(Table):                              # class created for each hand of
                         bet = 0
                         self.players[i][3] = False
                     self.players[i].contributed = self.players[i].contributed + bet        #alters ther individual players contribution
-                i + = 1
+                i += 1
                 remaining = 0
                 for j in range(0,len(self.players)):
                     if self.players[j].stillIn == True:
-                        remaining + = 1
+                        remaining += 1
             counter = counter+1
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
@@ -289,7 +289,7 @@ class Hand(Table):                              # class created for each hand of
     def allocateChips(self,winners):            # no return, change players chips
         for i in range(0,len(winners)):
             total = winners[i][1]
-            self.players[winners[i][0]].chips- = self.players[winners[i][0]].contributed
+            self.players[winners[i][0]].chips-= self.players[winners[i][0]].contributed
             for j in range(0,len(winners)):
                 if i == j:
                     pass
@@ -300,7 +300,7 @@ class Hand(Table):                              # class created for each hand of
                     total = total+winners[i][1]
                     winners[j][1] = winners[j][1]-winners[i][1]
             winners[i][1] = 0
-            self.players[winners[i][0]].chips+ = total
+            self.players[winners[i][0]].chips+= total
         
              
     def findWinner(self):                       # returns either the index of a single winner or a list of indexs of tied winners
@@ -388,9 +388,9 @@ class Hand(Table):                              # class created for each hand of
                         counter = 1
                         while (same  == True and  draw  == False) and (counter<len(self.players[y].wonObjectives) and counter< len(self.players[j].wonObjectives)):
                             if self.players[j].wonObjectives[counter]>self.players[y].wonObjectives[counter]:
-                                beaten + = 1
+                                beaten += 1
                                 same = False
-                            counter + = 1
+                            counter += 1
             winner.append([j,self.players[j].contributed,beaten])        #an array of how many people they have beaten and how much they contriputed which will be used when calculating split and normal pots
         winner = sorted(winner, key = lambda row: row[2],reverse = True)
         print(winner)
@@ -474,15 +474,15 @@ class Hand(Table):                              # class created for each hand of
                 pair = True
                 pair1 = i
                 break
-            i + = 1
+            i += 1
         if pair  == True:
-            i + = 2
+            i+= 2
             while i <len(cards)-1:
                 if cards [i][0] == cards [i+1][0]:
                     twopair = True
                     pair2 = i
                     break
-                i+ = 1
+                i += 1
             if twopair  == True:
                 others = []
                 values = [cards[pair1],cards[pair2]]
