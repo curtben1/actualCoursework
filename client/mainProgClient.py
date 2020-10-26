@@ -8,25 +8,25 @@ port = 5050 # port forward this on my router
 s.connect(host, port)
 servers = []
 def options(menu):                
-    if menu=="HOST":
-        uName=input("what is your username (no spaces)")        # A placeholder until actual usernames are implemented 
-        uName=uName.encode("ascii")
+    if menu == "HOST":
+        uName = input("what is your username (no spaces)")        # A placeholder until actual usernames are implemented 
+        uName = uName.encode("ascii")
         s.send(uName)
         msg = s.recv(1024)
         s.close()
         msg = msg.decode('ascii')
-    elif menu == "VIEW":
+    elif menu  == "VIEW":
         request = "sList"
-        request=request.encode("ascii")
+        request = request.encode("ascii")
         s.send(request)
-        msg=s.recv(1024)
-        msg=pickle.loads(msg)
+        msg = s.recv(1024)
+        msg = pickle.loads(msg)
     return msg
 
 def playGame(serverNum, serverList):     
     gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     for row in serverList:
-        if row[0] == serverNum:
+        if row[0]  == serverNum:
             host = row[2]
             break
     port = 5050         # port forwarded this on servers router
@@ -38,7 +38,7 @@ def playGame(serverNum, serverList):
         if isinstance(data, list):
             print(data)
             start = input("do you want to start the game now (YES/OTHER)")
-            if start == "YES":
+            if start  == "YES":
                 msg = pickle.dumps(start)
                 gamesocket.send(msg)
         else:
@@ -46,7 +46,7 @@ def playGame(serverNum, serverList):
     while True:
         data = gamesocket.recv(1024)
         data = pickle.loads(data)
-        if data == "game over":
+        if data  == "game over":
             return "Game Over"
         
 def newServer():
@@ -55,15 +55,15 @@ def newServer():
 
 
 def menu():     # the first function to get run
-    menu=input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")     # ui element
-    result=options(menu)
-    if menu=="VIEW":
+    menu = input("would you like to connect to the server or play a local hand or view the server list(LOCAL/SERVER/VIEW): ")     # ui element
+    result = options(menu)
+    if menu == "VIEW":
         print(result)
-        selection=input("which server would you like to connect to (By serverID): ")        #ui element
+        selection = input("which server would you like to connect to (By serverID): ")        #ui element
         status = playGame(selection, result)
-        if status == "Game Over":
+        if status  == "Game Over":
             menu()      # boots ended games back to menu, can have other status' with more info later if need be
-    elif menu=="HOST":
+    elif menu == "HOST":
         newServer()
 
 menu()

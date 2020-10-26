@@ -9,36 +9,36 @@ Contains functions necessary for reading/writing to an sql database
 def readSQL(db, table, columnName, searchTerm):
     con = sql.connect(db)
     cur = con.cursor()
-    table=(table,)
-    columnName=(columnName,)
-    searchTerm=(searchTerm,)
-    sqlcode="SELECT * FROM ? WHERE ? LIKE ? "   
+    table = (table,)
+    columnName = (columnName,)
+    searchTerm = (searchTerm,)
+    sqlcode = "SELECT * FROM ? WHERE ? LIKE ? "   
     cur.execute(sqlcode, (table, columnName ,searchTerm, ))
-    results=cur.fetchall()
+    results = cur.fetchall()
     return results
 
 def readsList():
     con = sql.connect("mainDatabase.db")
     cur = con.cursor()
-    #table=(table,)  
+    #table = (table,)  
     cur.execute("SELECT *FROM serverList")
-    results=cur.fetchall()
+    results = cur.fetchall()
     return results
 
 def readStats():
     con = sql.connect("mainDatabase.db")
     cur = con.cursor()
-    #table=(table,)  
+    #table = (table,)  
     cur.execute("SELECT *FROM Statitics")
-    results=cur.fetchall()
+    results = cur.fetchall()
     return results
 
-#======================================================================================================================================================================
+# ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
     
 def writeHost(new1, new2):
     con = sql.connect("mainDatabase.db")
     cur = con.cursor()   
-    sqlcode="INSERT INTO serverList VALUES (Null,?,?,1) "   
+    sqlcode = "INSERT INTO serverList VALUES (Null,?,?,1) "   
     cur.execute(sqlcode,(new1, new2))
     con.commit()
     cur.fetchall()
@@ -46,12 +46,12 @@ def writeHost(new1, new2):
 def writeSQL1(db,table , newValue):
     con = sql.connect(db)
     cur = con.cursor()
-    table=(table,)    
-    sqlcode="INSERT INTO ? VALUES (?,?,?,?,?,?) "   
+    table = (table,)    
+    sqlcode = "INSERT INTO ? VALUES (?,?,?,?,?,?) "   
     cur.execute(sqlcode,(table, newValue[0],))
     cur.fetchall()
     
-#======================================================================================================================================================================
+# ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
 
 def encWriteSQL(db,table,uName,pWord):
     pass

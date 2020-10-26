@@ -23,22 +23,22 @@ class client(Thread):
 
     def run(self):
         while 1:
-            inp=self.sock.recv(1024)
-            inp=inp.decode("ascii")
-            if inp == "sList":
-                reply=""
-                reply=sql.readsList()
-                reply=pickle.dumps(reply)
-            elif inp == "stats":
-                reply=sql.readStats()
-                reply=reply.encode("ascii")
+            inp = self.sock.recv(1024)
+            inp = inp.decode("ascii")
+            if inp  == "sList":
+                reply = ""
+                reply = sql.readsList()
+                reply = pickle.dumps(reply)
+            elif inp  == "stats":
+                reply = sql.readStats()
+                reply = reply.encode("ascii")
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
-            elif inp != "":
-                ipaddr=str(self.addr[0])
+            elif inp ! = "":
+                ipaddr = str(self.addr[0])
                 sql.writeHost(inp,ipaddr)
-                reply="connected"
-                reply=reply.encode("ascii")
+                reply = "connected"
+                reply = reply.encode("ascii")
                 
             try:
                 self.sock.send(reply)        # sends back a confirmation message
