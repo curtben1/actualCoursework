@@ -34,7 +34,7 @@ class client(Thread):
                 reply = reply.encode("ascii")
                 pass    # send the stats for the current account maybe across a few transmissions or as a file
                 
-            elif inp ! = "":
+            elif inp != "":
                 ipaddr = str(self.addr[0])
                 sql.writeHost(inp,ipaddr)
                 reply = "connected"

@@ -228,7 +228,7 @@ class Hand(Table):                              # class created for each hand of
                     currentBet = currentBet-self.sBlind
                 if self.players[i].stillIn == True:
                     print(i)
-                    if currentBet ! = 0:
+                    if currentBet != 0:
                         output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n "
                         action = self.recvText(self.connected[i], output)                        # ask for over network and take answer                                                       
                     else:
@@ -418,7 +418,7 @@ class Hand(Table):                              # class created for each hand of
         else:
             gap = 0
             i = 0
-            while i <len(cards)-4 and gap ! = 1:
+            while i <len(cards)-4 and gap != 1:
                 gap = int(cards[i][0]) - int(cards[i+1][0])    
                 i = i+1
             if gap  == 1:
@@ -437,9 +437,9 @@ class Hand(Table):                              # class created for each hand of
         
     def checkStraightFlush(self, cards):        # returns the highest card in the run or false
         flush = self.checkFlush(cards)
-        if flush ! = False:
+        if flush != False:
             straight = self.checkStraight(flush)
-            if straight ! = False and flush ! = False:
+            if straight != False and flush != False:
                 return straight                     # straight only returns the highest card and the suit of the cards is now irrelevant
             else:
                 return False
@@ -454,7 +454,7 @@ class Hand(Table):                              # class created for each hand of
                 pair = True
                 others = []
                 for j in range(0,len(cards)-1):
-                    if j ! = i and j! = i+1:
+                    if j != i and j!= i+1:
                         others.append(cards[j])
                 others.sort(reverse = True)
                 if len(cards) == 4:
@@ -487,7 +487,7 @@ class Hand(Table):                              # class created for each hand of
                 others = []
                 values = [cards[pair1],cards[pair2]]
                 for j in range(0,len(cards)):
-                    if j ! = pair1 and j! = pair1+1 and j! = pair2 and j! = pair2+1:
+                    if j != pair1 and j!= pair1+1 and j!= pair2 and j!= pair2+1:
                         others.append(cards[j])
                 others.sort(reverse = True)
                 values = [cards[pair1],cards[pair2],others[0]]            
@@ -505,7 +505,7 @@ class Hand(Table):                              # class created for each hand of
                 three = True
                 others = []
                 for j in range(0,len(cards)-1):
-                    if j ! = i and j! = i+1 and j! = i+2:
+                    if j != i and j!= i+1 and j!= i+2:
                         others.append(cards[j])
                 others.sort(reverse = True)
                 retValues = [cards[i],others[0],others[1]]
@@ -521,7 +521,7 @@ class Hand(Table):                              # class created for each hand of
                 quads = True
                 others = []
                 for j in range(0,len(cards)-1):
-                    if j ! = i and j! = i+1 and j! = i+2 and j! = i+3:
+                    if j != i and j!= i+1 and j!= i+2 and j!= i+3:
                         others.append(cards[j])
                 others.sort(reverse = True)
                 return [cards[i],others[0]]
@@ -530,16 +530,16 @@ class Hand(Table):                              # class created for each hand of
                 
     def checkFull(self,cards):                  # returns either false or a 2 card array = [3s,2s]
         trip = self.checkSet(cards)
-        if trip ! = False:
+        if trip != False:
             newCards = []
             for i in range(0,len(cards)):
-                if cards[i][0]! = trip[0][0]:
+                if cards[i][0]!= trip[0][0]:
                     newCards.append(cards[i])
             pair = self.checkPair(newCards)
-            if pair ! = False:
+            if pair != False:
                 trip = trip[0]
                 pair = pair[0]
-                if trip ! = pair:
+                if trip != pair:
                     House = [trip,pair]
                     return House
                 else:
