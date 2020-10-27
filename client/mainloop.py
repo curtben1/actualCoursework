@@ -122,7 +122,7 @@ class Table:                                    # class created to run and store
     def playHand(self):
         self.hands=self.hands+1
         self.blind=self.blind*2
-        self.newhand=Hand(self.blind,self.connected, groupSocket)
+        self.newhand=Hand(self.blind,self.connected, self.groupSocket)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
