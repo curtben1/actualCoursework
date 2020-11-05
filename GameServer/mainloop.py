@@ -177,7 +177,6 @@ class Hand(Table):                              # class created for each hand of
             print(hand.card1, hand.card2)
         print(self.centre)
 
-
     def sendText(self,playerNum, message):                # no return, sends message to the ip listed on port 8080
         message = str(playerNum)+ ':' + message
         message = pickle.loads(message)
