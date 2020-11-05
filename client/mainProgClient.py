@@ -50,7 +50,7 @@ def playGame(serverNum, serverList):
             return "Game Over"
         
 def newServer():
-    sendval = 
+    sendval = None
     s.send()
 
 

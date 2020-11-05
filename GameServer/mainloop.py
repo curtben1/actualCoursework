@@ -293,7 +293,7 @@ class Hand(Table):                              # class created for each hand of
             for j in range(0,len(winners)):
                 if i == j:
                     pass
-                elif winners[i][1]> = winners[j][1]:
+                elif winners[i][1]>= winners[j][1]:
                     total = total+winners[j][1]
                     winners[j][1] = 0
                 else:
@@ -400,7 +400,7 @@ class Hand(Table):                              # class created for each hand of
         flush = False
         for i in range (0,4):
             suit = self.sortBySuit(cards,i)       #returns a 5 card array of the same suit
-            if len(suit)> = 5:
+            if len(suit)>= 5:
                 flush = True
                 suit.sort(reverse = True)
                 while len(suit)> 5:
@@ -427,7 +427,7 @@ class Hand(Table):                              # class created for each hand of
                 while gap == 1 and i < len(cards)-1:
                     gap = int(cards[i][0]) - int(cards[i+1][0])
                     straight = straight+1
-                    if straight > = 5:
+                    if straight >= 5:
                         return highCard             # 5 most relevant cards are the straight so no extra info is needed
                     i = i+1                                           
                 else:                               # a while else loop because legacy version used break to escape while loop rather than appropriate condition                                                                                fuck you thats why
@@ -572,4 +572,3 @@ class Player:
         self.card1 = card1
         self.card2 = card2
 
-    
