@@ -1,11 +1,21 @@
+"""
+todo - hook up database to functioning playgame lobby
+
+test the lobby voting 
+
+
+
+"""
+
+
 import socket
 import pickle
-
+from sys import getsizeof
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "0.0.0.0"   # ip of my home pc add this in later and maybe replace with pasberry pi
+host = "86.141.85.24"   # ip of my home pc add this in later and maybe replace with pasberry pi
 port = 5050 # port forward this on my router
-s.connect(host, port)
+s.connect((host, port))
 servers = []
 def options(menu):                
     if menu == "HOST":
@@ -29,25 +39,33 @@ def playGame(serverNum, serverList):
         if row[0]  == serverNum:
             host = row[2]
             break
-    port = 5050         # port forwarded this on servers router
-    gamesocket.bind(host, port)
-    while True:
-        data = gamesocket.recv(1024)
-        data = pickle.loads(data)
-        print(data)
-        if isinstance(data, list):
-            print(data)
-            start = input("do you want to start the game now (YES/OTHER)")
-            if start  == "YES":
-                msg = pickle.dumps(start)
-                gamesocket.send(msg)
-        else:
-            print("game starting")
+    port = 6060         # port forwarded this on servers router
+    gamesocket.connect(("86.141.85.24", port))
+    playerInfo = [25,26,16,78,23]
+    msg = pickle.dumps(playerInfo)
+    gamesocket.send(msg)
+
+
+    while True: 
+        
+        data2 = gamesocket.recv(4096)
+        if data2:
+            data2 = pickle.loads(data2)
+            if isinstance(data2, list):
+                print(data2)
+                start = input("do you want to start the game now (YES/OTHER)")
+                if start  == "YES":
+                    msg =  pickle.dumps(start)
+                    gamesocket.send(msg)
+            else:
+                print(data2)
+                print("game starting")
+                break
     while True:
         data = gamesocket.recv(1024)
         data = pickle.loads(data)
         if data  == "game over":
-            return "Game Over"
+            return "Game Over" 
         
 def newServer():
     sendval = None
@@ -66,4 +84,6 @@ def menu():     # the first function to get run
     elif menu == "HOST":
         newServer()
 
-menu()
+#menu
+if __name__ == "__main__":
+    menu()
