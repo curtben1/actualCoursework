@@ -26,8 +26,8 @@ class gameServer:
             player = client.recv(1024)
             player = pickle.loads(player)
             player = {  "username":player[0], 
-                        "playerNum":player[1]}
-            player["socket"] = client
+                        "playerNum":player[1],
+                        "socket":client}
             if isinstance(player, list):
                 self.playerList.append(player)
                 pickleList = pickle.dumps(self.playerList)
