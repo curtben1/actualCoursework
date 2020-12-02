@@ -115,13 +115,17 @@ class Table:                                    # class created to run and store
         for i in range(0,Table.totalPlayers):
             self.playerChips[i] = 500
         self.blind = 50
-        self.connected = connected
+        self.playerObjs = []
+        for i in range(len(connected)):
+            temp = Player()
+            temp.socket = connected[i]["socket"]
+            playerObjs.append(temp)
 
 
     def playHand(self):
         self.hands = self.hands+1
         self.blind = self.blind*2
-        self.newhand = Hand(self.blind,self.connected, self.gameSocket)
+        self.newhand = Hand(self.blind,self.playerObjs, self.gameSocket)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
@@ -139,27 +143,23 @@ class Table:                                    # class created to run and store
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind,connected, gameSocket):    # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,playerObjs, gameSocket):    # shuffles the deck, initialises the player library and deals the cards
         self.sBlind = sBlind
         self.bBlind = sBlind*2
         self.deck = shuffle()                     
-        self.players = []
+        self.players = playerObjs
         self.centre = []
         self.round = 0
-        self.connected = connected
         self.gameSocket = gameSocket
         print(Table.totalPlayers)
-        for i in range(0,Table.totalPlayers):
-            temp = Player()
-            self.players.append(temp)
+        for player in self.players:
+            player.reset()
         
 
     def deal(self):                             # no return
-            
-        
+             
         for player in self.players:
             player.card1 = (self.deck.pop(len(self.deck)-1))   
-        j = 0
         
         for player in self.players:
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
@@ -177,17 +177,15 @@ class Hand(Table):                              # class created for each hand of
             print(hand.card1, hand.card2)
         print(self.centre)
 
-    def sendText(self,playerNum, message):                # no return, sends message to the ip listed on port 8080
-        message = str(playerNum)+ ':' + message
+    def sendText(self,i, message):                # no return, sends message to the ip listed on port 8080
         message = pickle.dumps(message)
-        self.gameSocket.send(message)
+        self.players[i].socket.send(message)
 
-    def recvText(self, playerNum, message):            #returns the response to the question ask
-        message = str(playerNum)+ ':' + message
+    def recvText(self, i, message):            #returns the response to the question ask
         message = pickle.dumps(message)
-        self.gameSocket.send(message)
+        self.players[i].socket.send(message)
         while True:
-            data = self.gameSocket.recv(1024)
+            data = self.players[i].socket.recv(1024)
             data = pickle.loads(data)
         return data
 
@@ -229,14 +227,14 @@ class Hand(Table):                              # class created for each hand of
                     print(i)
                     if currentBet != 0:
                         output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n "
-                        action = self.recvText(self.connected[i], output)                        # ask for over network and take answer                                                       
+                        action = self.recvText(i, output)                        # ask for over network and take answer                                                       
                     else:
                         output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n "
-                        action = self.recvText(self.connected[i], output)                     # ask for over network and take answer
+                        action = self.recvText(i, output)                     # ask for over network and take answer
                     if action  == 'C':
                         if currentBet > self.players[i].chips-self.players[i].contributed:
                             output = "you can't afford to call so have been put all in"
-                            self.sendText(self.connected[i], output)                                                # send over network
+                            self.sendText(i, output)                                                # send over network
                             bet = self.players[i].chips-self.players[i].contributed
                         else:
                             bet = currentBet
@@ -246,20 +244,20 @@ class Hand(Table):                              # class created for each hand of
                         raised = counter
                         if currentBet > self.players[i].chips-self.players[i].contributed:
                             output = "you can't afford to call so have been put all in"
-                            self.sendText(self.connected[i], output)                                                # send over network
+                            self.sendText(i, output)                                                # send over network
                         else:
                             output = "How much do you want to raise it by? "
-                            amount = self.recvText(self.connected[i], output)                                       # send over network and take answer
+                            amount = self.recvText(i, output)                                       # send over network and take answer
                             bet = currentBet+amount
                             while bet > self.players[i].chips-self.players[i].contributed and amount<self.bBlind:
                                 if bet> self.players[i].chips-self.players[i].contributed:
                                     output = "You can't afford the bet"
-                                    self.sendText(self.connected[i], output)                                        # send over network
+                                    self.sendText(i, output)                                        # send over network
                                 else:
                                     output = "that is below the minimum raise of the big blind"
-                                    self.sendText(self.connected[i], output)                                        # send over network
+                                    self.sendText(i, output)                                        # send over network
                                 output = "How much do you want to raise it by? "
-                                action = self.recvText(self.connected[i], output)                                              # send and recieve over the network
+                                action = self.recvText(i, output)                                              # send and recieve over the network
                                 bet = currentBet+amount
                             currentBet = bet
                     elif action  == 'F':
@@ -565,9 +563,15 @@ class Player:
         self.contributed = 0
         self.wonObjectives = None
         self.chips = 0
+        self.socket = None
 
 
     def setCards(self,card1,card2):
         self.card1 = card1
         self.card2 = card2
 
+    def reset(self):
+        self.stillIn = True
+        self.contributed = 0
+        self.wonObjectives = None
+        self.chips = 0

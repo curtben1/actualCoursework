@@ -41,7 +41,7 @@ def playGame(serverNum, serverList):
             break
     port = 6060         # port forwarded this on servers router
     gamesocket.connect(("86.141.85.24", port))
-    playerInfo = [25,26,16,78,23]
+    playerInfo = ["username", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
 
@@ -67,7 +67,7 @@ def playGame(serverNum, serverList):
         if data  == "game over":
             return "Game Over" 
         
-def newServer():
+def newServer():            # create a new server if there are rescources 
     sendval = None
     s.send()
 

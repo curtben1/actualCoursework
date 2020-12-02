@@ -25,13 +25,16 @@ class gameServer:
             self.connections.append(client)
             player = client.recv(1024)
             player = pickle.loads(player)
+            player = {  "username":player[0], 
+                        "playerNum":player[1]}
+            player["socket"] = client
             if isinstance(player, list):
                 self.playerList.append(player)
                 pickleList = pickle.dumps(self.playerList)
 
                 #for indisock in self.connections:
                 client.send(pickleList)
-                break # for test
+                #break # for test
             else:
                 votes += 1
                 print(votes)
