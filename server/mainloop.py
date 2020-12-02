@@ -189,6 +189,10 @@ class Hand(Table):                              # class created for each hand of
             data = pickle.loads(data)
         return data
 
+    def sendToAll(self, message):
+        message = pickle.dumps(message)
+        for player in self.players:
+            player.socket.send(message)
 
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
