@@ -119,7 +119,7 @@ class Table:                                    # class created to run and store
         for i in range(len(connected)):
             temp = Player()
             temp.socket = connected[i]["socket"]
-            playerObjs.append(temp)
+            self.playerObjs.append(temp)
 
 
     def playHand(self):
@@ -154,7 +154,7 @@ class Hand(Table):                              # class created for each hand of
         print(Table.totalPlayers)
         for player in self.players:
             player.reset()
-        
+        self.sendToAll("whatsup")
 
     def deal(self):                             # no return
              
@@ -182,12 +182,17 @@ class Hand(Table):                              # class created for each hand of
         self.players[i].socket.send(message)
 
     def recvText(self, i, message):            #returns the response to the question ask
+        message = '1#'+message
         message = pickle.dumps(message)
         self.players[i].socket.send(message)
         while True:
             data = self.players[i].socket.recv(1024)
             data = pickle.loads(data)
         return data
+
+    def playerPrinter(self):
+        for player in self.players:
+            print(player.card1,player.card2,player.chips,player.contributed,player.socket,player.wonObjectives,player.stillIn)
 
     def sendToAll(self, message):
         message = pickle.dumps(message)
@@ -214,7 +219,7 @@ class Hand(Table):                              # class created for each hand of
                 self.players[i].contributed = self.sBlind
                 i += 1
                 self.players[i].contributed = self.bBlind
-                print(self.players)
+                self.playerPrinter()
                 currentBet = self.bBlind
                 raiser = i+1
                 raised = counter
