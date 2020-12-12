@@ -6,7 +6,7 @@ class gameServer:
 
     def __init__(self):
         self.playerList = []
-
+        self.playerListCV = []      # need a seperate list for sending to clients as version with sockets cant be serialised
         self.gameSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         host = "0.0.0.0"    # self
         port = 6060         # port forwarded this on servers router
@@ -14,7 +14,7 @@ class gameServer:
         self.connections = []
     def lobby(self,maxPlayers):
         votes = 0
-        
+        counter = 0
 
         while len(self.playerList)<maxPlayers or votes < len(self.playerList) -1:
             print("listening")
@@ -25,16 +25,20 @@ class gameServer:
             self.connections.append(client)
             player = client.recv(1024)
             player = pickle.loads(player)
-            player = {  "username":player[0], 
+            playerDict = {  "username":player[0], 
                         "playerNum":player[1],
                         "socket":client}
             if isinstance(player, list):
-                self.playerList.append(player)
-                pickleList = pickle.dumps(self.playerList)
+                self.playerList.append(playerDict)
+                self.playerListCV.append({"username":player[0], "playerNum":player[1]})     # player dict without sockets so it can be serialised
+                pickleList = pickle.dumps(self.playerListCV)
 
                 #for indisock in self.connections:
                 client.send(pickleList)
-                #break # for test
+                counter +=1 # for test
+                print(counter)
+                if counter == 2:
+                    break
             else:
                 votes += 1
                 print(votes)
