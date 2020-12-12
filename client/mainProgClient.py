@@ -12,11 +12,11 @@ import socket
 import pickle
 from sys import getsizeof
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-host = "86.141.85.24"   # ip of my home pc add this in later and maybe replace with pasberry pi
+"""s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+host = "86.157.43.62"   # ip of my home pc add this in later and maybe replace with pasberry pi
 port = 5050 # port forward this on my router
 s.connect((host, port))
-servers = []
+servers = []"""
 def options(menu):                
     if menu == "HOST":
         uName = input("what is your username (no spaces)")        # A placeholder until actual usernames are implemented 
@@ -35,12 +35,12 @@ def options(menu):
 
 def playGame(serverNum, serverList):     
     gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    for row in serverList:
+    """for row in serverList:
         if row[0]  == serverNum:
             host = row[2]
-            break
+            break"""
     port = 6060         # port forwarded this on servers router
-    gamesocket.connect(("86.141.85.24", port))
+    gamesocket.connect(("86.157.43.62", port))
     playerInfo = ["username", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
@@ -53,6 +53,7 @@ def playGame(serverNum, serverList):
             data2 = pickle.loads(data2)
             if isinstance(data2, list):
                 print(data2)
+                break
                 start = input("do you want to start the game now (YES/OTHER)")
                 if start  == "YES":
                     msg =  pickle.dumps(start)
@@ -64,6 +65,7 @@ def playGame(serverNum, serverList):
     while True:
         data = gamesocket.recv(1024)
         data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to these cards
+        print(data)
         if data  == "game over":
             return "Game Over" 
         
@@ -86,4 +88,4 @@ def menu():     # the first function to get run
 
 #menu
 if __name__ == "__main__":
-    menu()
+    playGame(None,None)
