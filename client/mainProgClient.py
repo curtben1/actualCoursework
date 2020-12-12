@@ -65,7 +65,13 @@ def playGame(serverNum, serverList):
     while True:
         data = gamesocket.recv(1024)
         data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to these cards
-        print(data)
+        data = data.split(' ')
+        if data[0]=='0':
+            print(data)
+        elif data[0]== '1':
+            val = input(data[1])
+            val = pickle.dumps(val)
+            gamesocket.send(val)
         if data  == "game over":
             return "Game Over" 
         
