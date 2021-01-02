@@ -40,7 +40,7 @@ def playGame(serverNum, serverList):
             host = row[2]
             break"""
     port = 6060         # port forwarded this on servers router
-    gamesocket.connect(("86.157.43.62", port))
+    gamesocket.connect(("86.128.35.53", port))
     playerInfo = ["username", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
@@ -63,17 +63,26 @@ def playGame(serverNum, serverList):
                 print("game starting")
                 break
     while True:
+        print("again")
         data = gamesocket.recv(1024)
-        data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to these cards
-        data = data.split('#')
-        if data[0]=='0':
+        print("recieved")
+        data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
+        
+        try:
+            data = data.split('#')
+            if data[0]== '1':
+                if len(data) == 3:
+                    print("the current bet to call is ", data[2])
+                val = input(data[1])
+                val = pickle.dumps(val)
+                gamesocket.send(val)
+            else:
+                print(data[1])
+        except:
             print(data)
-        elif data[0]== '1':
-            val = input(data[1])
-            val = pickle.dumps(val)
-            gamesocket.send(val)
-        if data  == "game over":
-            return "Game Over" 
+            if data  == "game over":
+                return "Game Over" 
+        
         
 def newServer():            # create a new server if there are rescources 
     sendval = None
