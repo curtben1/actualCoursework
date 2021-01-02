@@ -104,16 +104,17 @@ def shuffle():
     return cards
 
 class Table:                                    # class created to run and store logic about the current game and everyone at the "table" 
-    totalPlayers = 0
-    playerChips = {}          #some globalish variables I can then more easily inherit without passing to init and creating a bigger mess down the line
+    
+              #some globalish variables I can then more easily inherit without passing to init and creating a bigger mess down the line
 
     def __init__(self, connected, gameSocket):
         Table.totalPlayers = len(connected)
-        ##self.playerChips = {}
+        self.totalPlayers = 0
+        self.playerChips = []
         self.hands = 0
         self.gameSocket = gameSocket
         for i in range(0,Table.totalPlayers):
-            self.playerChips[i] = 500
+            self.playerChips.append(500)
         self.blind = 50
         self.playerObjs = []
         for i in range(len(connected)):
@@ -123,9 +124,11 @@ class Table:                                    # class created to run and store
 
 
     def playHand(self):
+        print(self.playerChips)
         self.hands = self.hands+1
+        
+        self.newhand = Hand(self.blind,self.playerObjs, self.gameSocket,self.playerChips,self.totalPlayers)
         self.blind = self.blind*2
-        self.newhand = Hand(self.blind,self.playerObjs, self.gameSocket)
         self.newhand.deal()
         self.newhand.bettingRound()
         print(self.newhand.flop())
@@ -135,15 +138,18 @@ class Table:                                    # class created to run and store
         print(self.newhand.river())
         self.newhand.bettingRound()
         winners = self.newhand.findWinner()
-        """handRes = self.newhand.allocateChips(winners)
+        self.newhand.allocateChips(winners)
+        handRes = self.newhand.players
         for i in range(0, len(handRes)):
-            self.playerChips[i] = handRes[i][2]
-        print(self.playerChips)"""
+            self.playerChips[i] = handRes[i].chips
+        print(self.playerChips)
 # ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
 
 class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
-    def __init__(self,sBlind,playerObjs, gameSocket):    # shuffles the deck, initialises the player library and deals the cards
+    def __init__(self,sBlind,playerObjs, gameSocket,playerChips,totalPlayers):    # shuffles the deck, initialises the player library and deals the cards
+        self.playerChips = playerChips
+        self.totalPlayers = totalPlayers
         self.sBlind = sBlind
         self.bBlind = sBlind*2
         self.deck = shuffle()                     
@@ -151,10 +157,9 @@ class Hand(Table):                              # class created for each hand of
         self.centre = []
         self.round = 0
         self.gameSocket = gameSocket
-        print(Table.totalPlayers)
+        print(self.totalPlayers)
         for player in self.players:
             player.reset()
-        self.sendToAll("whatsup")
 
     def deal(self):                             # no return
              
@@ -164,13 +169,14 @@ class Hand(Table):                              # class created for each hand of
         for player in self.players:
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
         
-
+        for ii in range(0, len(self.players)):
+            self.sendText(ii,[self.players[ii].card1,self.players[ii].card2])
 
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
             
         for y in range(0,len(self.players)):
-            self.players[y].chips = Table.playerChips[y]        # might need to use super and make this a child
+            self.players[y].chips = self.playerChips[y]        # might need to use super and make this a child
             self.players[y].stillIn = True
             self.players[y].contributed = 0
         for hand in self.players:
@@ -185,9 +191,10 @@ class Hand(Table):                              # class created for each hand of
         message = '1#'+message
         message = pickle.dumps(message)
         self.players[i].socket.send(message)
-        while True:
-            data = self.players[i].socket.recv(1024)
-            data = pickle.loads(data)
+        print("sent")
+        data = self.players[i].socket.recv(1024)
+        data = pickle.loads(data)
+        print("recieved")
         return data
 
     def playerPrinter(self):
@@ -198,6 +205,8 @@ class Hand(Table):                              # class created for each hand of
         message = pickle.dumps(message)
         for player in self.players:
             player.socket.send(message)
+
+
 
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
@@ -221,6 +230,7 @@ class Hand(Table):                              # class created for each hand of
                 self.players[i].contributed = self.bBlind
                 self.playerPrinter()
                 currentBet = self.bBlind
+                
                 raiser = i+1
                 raised = counter
                 again = True
@@ -228,6 +238,8 @@ class Hand(Table):                              # class created for each hand of
                 blinds = True
 
             while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and remaining>1:
+                
+                print("progressed")
                 if blinds == True and i == 0:
                     currentBet = currentBet-self.sBlind 
                 elif blinds == True and i == 1:
@@ -235,10 +247,10 @@ class Hand(Table):                              # class created for each hand of
                 if self.players[i].stillIn == True:
                     print(i)
                     if currentBet != 0:
-                        output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n "
+                        output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
                         action = self.recvText(i, output)                        # ask for over network and take answer                                                       
                     else:
-                        output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n "
+                        output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
                         action = self.recvText(i, output)                     # ask for over network and take answer
                     if action  == 'C':
                         if currentBet > self.players[i].chips-self.players[i].contributed:
@@ -256,9 +268,9 @@ class Hand(Table):                              # class created for each hand of
                             self.sendText(i, output)                                                # send over network
                         else:
                             output = "How much do you want to raise it by? "
-                            amount = self.recvText(i, output)                                       # send over network and take answer
-                            bet = currentBet+amount
-                            while bet > self.players[i].chips-self.players[i].contributed and amount<self.bBlind:
+                            amount = int(self.recvText(i, output))                                    # send over network and take answer
+                            bet = currentBet+ amount
+                            while bet > self.players[i].chips-self.players[i].contributed or amount<self.bBlind:
                                 if bet> self.players[i].chips-self.players[i].contributed:
                                     output = "You can't afford the bet"
                                     self.sendText(i, output)                                        # send over network
@@ -266,12 +278,12 @@ class Hand(Table):                              # class created for each hand of
                                     output = "that is below the minimum raise of the big blind"
                                     self.sendText(i, output)                                        # send over network
                                 output = "How much do you want to raise it by? "
-                                action = self.recvText(i, output)                                              # send and recieve over the network
+                                amount = int(self.recvText(i, output))                                              # send and recieve over the network
                                 bet = currentBet+amount
                             currentBet = bet
                     elif action  == 'F':
                         bet = 0
-                        self.players[i][3] = False
+                        self.players[i].stillIn = False
                     self.players[i].contributed = self.players[i].contributed + bet        #alters ther individual players contribution
                 i += 1
                 remaining = 0
@@ -282,14 +294,17 @@ class Hand(Table):                              # class created for each hand of
                 
     def flop(self):                             # returns [[card1],[card2],[card3]]
         flopCards = [self.centre[0],self.centre[1],self.centre[2]]
+        self.sendToAll(flopCards)
         return flopCards
     
     def turn(self):                             # returns [card4] 
         turnCard = self.centre[3]
+        self.sendToAll(turnCard)
         return turnCard
     
     def river(self):                            # returns [card5]
         riverCard = self.centre[4]
+        self.sendToAll(riverCard)
         return riverCard
 
     def allocateChips(self,winners):            # no return, change players chips
@@ -314,8 +329,8 @@ class Hand(Table):                              # class created for each hand of
         winner = None
         for i in range(0,len(self.players)):
             print("checking P",i)
-            print(self.players[i][3])
-            if self.players[i][3] == True:
+            print(self.players[i].stillIn)
+            if self.players[i].stillIn == True:
                 cards = [self.players[i].card1,self.players[i].card2,self.centre[0],self.centre[1],self.centre[2],self.centre[3],self.centre[4]]
                 cards.sort()
 
@@ -344,31 +359,31 @@ class Hand(Table):                              # class created for each hand of
                                             if pair == False:
                                                 print("no pair")
                                                 high = self.getHighest(cards)
-                                                self.players[i].wonObjectives([0,high])
+                                                self.players[i].wonObjectives=[0,high]
                                                 print("high card")
                                             else:
-                                                self.players[i].wonObjectives([1,pair])
+                                                self.players[i].wonObjectives=[1,pair]
                                                 print("pair")
                                         else:
-                                            self.players[i].wonObjectives([2,twoPair])
+                                            self.players[i].wonObjectives=[2,twoPair]
                                             print("twopair")
                                     else:
-                                        self.players[i].wonObjectives([3,triple])
+                                        self.players[i].wonObjectives=[3,triple]
                                         print("set")
                                 else:
-                                    self.players[i].wonObjectives([4,straight])
+                                    self.players[i].wonObjectives=[4,straight]
                                     print("straight")
                             else:
-                                self.players[i].wonObjectives([5,flush])
+                                self.players[i].wonObjectives=[5,flush]
                                 print("flush")
                         else:
-                            self.players[i].wonObjectives([6, fullHouse])
+                            self.players[i].wonObjectives=[6, fullHouse]
                             print("full house")
                     else:
-                        self.players[i].wonObjectives([7,quad])
+                        self.players[i].wonObjectives=[7,quad]
                         print("4 of kind")
                 else:
-                    self.players[i].wonObjectives([8,straightFlush])
+                    self.players[i].wonObjectives=[8,straightFlush]
                     print("sf")
 
         for player in self.players:
@@ -570,7 +585,7 @@ class Player:
     def __init__(self):
         self.stillIn = True
         self.contributed = 0
-        self.wonObjectives = None
+        self.wonObjectives = list
         self.chips = 0
         self.socket = None
 
