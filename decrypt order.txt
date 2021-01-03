@@ -1,6 +1,0 @@
-enter details
-encrypted using assym pub key
-sent
-recieved
-decrypted ussing assym priv key
-search through table decrpyt using priv key each time

@@ -1,5 +1,25 @@
 
 <<<<<<< HEAD
-*.pptx
-=======
 
+ ==  ==  ==  = 
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+mainDatabase.db
+<<<<<<< HEAD
+__pycache__/SQLreader.cpython-37.pyc
+.vscode/settings.json
+ ==  ==  ==  = 
+<<<<<<< HEAD
+.vscode/settings.json
+__pycache__/mainloop.cpython-37.pyc
+ ==  ==  ==  = 
+
+>>>>>>> 57c042f4944be1776ce6ab65ce26961f171998ed
+
+>>>>>>> cc202e74399d0c33c592f57789aefdd5341bc13c
+other/design.docx
