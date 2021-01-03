@@ -291,17 +291,17 @@ class Hand(Table):                              # class created for each hand of
                     if self.players[j].stillIn == True:
                         remaining += 1
             counter = counter+1
-                
+
     def flop(self):                             # returns [[card1],[card2],[card3]]
         flopCards = [self.centre[0],self.centre[1],self.centre[2]]
         self.sendToAll(flopCards)
         return flopCards
-    
+
     def turn(self):                             # returns [card4] 
         turnCard = self.centre[3]
         self.sendToAll(turnCard)
         return turnCard
-    
+
     def river(self):                            # returns [card5]
         riverCard = self.centre[4]
         self.sendToAll(riverCard)
