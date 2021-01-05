@@ -157,6 +157,7 @@ class Hand(Table):                              # class created for each hand of
         self.centre = []
         self.round = 0
         self.gameSocket = gameSocket
+        
         print(self.totalPlayers)
         for player in self.players:
             player.reset()
@@ -170,7 +171,7 @@ class Hand(Table):                              # class created for each hand of
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
         
         for ii in range(0, len(self.players)):
-            self.sendText(ii,[self.players[ii].card1,self.players[ii].card2])
+            self.sendText(ii,[2,[self.players[ii].card1,self.players[ii].card2]])
 
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
@@ -294,17 +295,23 @@ class Hand(Table):                              # class created for each hand of
 
     def flop(self):                             # returns [[card1],[card2],[card3]]
         flopCards = [self.centre[0],self.centre[1],self.centre[2]]
-        self.sendToAll(flopCards)
+        retval = [3]
+        retval.extend([flopCards])
+        self.sendToAll(retval)
         return flopCards
 
     def turn(self):                             # returns [card4] 
         turnCard = self.centre[3]
-        self.sendToAll(turnCard)
+        retval = [4]
+        retval.extend([turnCard])
+        self.sendToAll(retval)
         return turnCard
 
     def river(self):                            # returns [card5]
         riverCard = self.centre[4]
-        self.sendToAll(riverCard)
+        retval = [5]
+        retval.extend([riverCard])
+        self.sendToAll(retval)
         return riverCard
 
     def allocateChips(self,winners):            # no return, change players chips
