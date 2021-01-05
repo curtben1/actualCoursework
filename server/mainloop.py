@@ -145,7 +145,7 @@ class Table:                                    # class created to run and store
         print(self.playerChips)
 # ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
 
-class Hand(Table):                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
+class Hand:                              # class created for each hand of the game, calculates winners and makes changes to chips, child of Table()
 
     def __init__(self,sBlind,playerObjs, gameSocket,playerChips,totalPlayers):    # shuffles the deck, initialises the player library and deals the cards
         self.playerChips = playerChips
