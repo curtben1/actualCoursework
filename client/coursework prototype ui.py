@@ -13,8 +13,9 @@ class Window(QWidget):
     out = pyqtSignal()
     def __init__(self, parent = None):
         self.netInfo = 0
-        QWidget.__init__(self, parent)        
-        
+        QWidget.__init__(self, parent)     
+        self.setGeometry(100,100,1280,720)   
+        self.gamestate = "pre lobby"
 
         # Put the widgets here
         self.startButton = QPushButton(self.tr("&Start"))       
@@ -24,6 +25,34 @@ class Window(QWidget):
         self.selectionRRdo = QRadioButton("Raise")
         self.selectionFRdo = QRadioButton("Fold")
         self.buttonConfirm = QPushButton("Enter")
+        self.flop1 = QLabel("card1")
+        self.flop2 = QLabel("card2")
+        self.flop3 = QLabel("card3")
+        self.flop4 = QLabel("card4")
+        self.flop5 = QLabel("card5")
+        self.hand1 = QLabel("hand1")
+        self.hand2 = QLabel("hand2")
+
+        centerLayout = QHBoxLayout()
+        centerLayout.addStretch(1)      # stretch should go outside of box in another seperate layout
+        centerLayout.addWidget(self.flop1)
+        centerLayout.addWidget(self.flop2)
+        centerLayout.addWidget(self.flop3)
+        centerLayout.addWidget(self.flop4)
+        centerLayout.addWidget(self.flop5)
+        centerLayout.addStretch(1)
+
+        self.centerGroup = QGroupBox()
+        self.centerGroup.setLayout(centerLayout)
+
+        handLayout = QHBoxLayout()
+        handLayout.addStretch(3)
+        handLayout.addWidget(self.hand1)
+        handLayout.addWidget(self.hand2)
+        handLayout.addStretch(3)
+
+        self.handGroup = QGroupBox()
+        self.handGroup.setLayout(handLayout)
 
         self.radioGroup = QButtonGroup()
         self.radioGroup.addButton(self.selectionCRdo)
@@ -40,18 +69,23 @@ class Window(QWidget):
         
 
 
-        layout = QGridLayout()
+        layout = QVBoxLayout()
         layout.addWidget(self.startButton)
         layout.addWidget(self.printerLabel)
+        layout.addStretch(1)
+        layout.addWidget(self.centerGroup)
+        layout.addStretch(1)
+        layout.addWidget(self.handGroup)
         layout.addWidget(self.selectionCRdo)
         layout.addWidget(self.selectionRRdo)
         layout.addWidget(self.selectionFRdo)
         layout.addWidget(self.buttonConfirm)
+        
 
         #layout.addLayout(self.inputLayout)
 
         self.setLayout(layout)        
-        self.setWindowTitle(self.tr("Simple Threading Example"))
+        self.setWindowTitle(self.tr("Poker Game"))
         
 
     def startListener(self):
@@ -64,7 +98,24 @@ class Window(QWidget):
 
 
     def printer(self):
-        self.printerLabel.setText(window.printvalue)
+        if isinstance(window.printvalue, list ):
+            if window.printvalue[0]==2:
+                self.hand1.setText(str(window.printvalue[1][0]))
+                self.hand2.setText(str(window.printvalue[1][1]))
+            elif window.printvalue[0]==3:
+                self.flop1.setText(str(window.printvalue[1][0]))
+                self.flop2.setText(str(window.printvalue[1][1]))
+                self.flop3.setText(str(window.printvalue[1][2]))
+            elif window.printvalue[0]==4:
+                self.flop4.setText(str(window.printvalue[1]))
+            elif window.printvalue[0]==5:
+                self.flop5.setText(str(window.printvalue[1]))
+            else:
+                printval = str(window.printvalue)
+                self.printerLabel.setText(printval)
+        else:
+            printval = str(window.printvalue)
+            self.printerLabel.setText(printval)
 
     def takeInput(self):
         self.radioGroup.show()
@@ -102,6 +153,7 @@ class Worker(QThread):
         
 
     def run(self):      
+        window.gameState = "lobby"
         window.printvalue = "connecting..."
         self.printTime.emit()
         self.gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
@@ -110,7 +162,7 @@ class Worker(QThread):
                 host = row[2]
                 break"""
         port = 6060         # port forwarded this on servers router
-        self.gamesocket.connect(("86.128.35.53", port))
+        self.gamesocket.connect(("81.135.23.12", port))
         playerInfo = ["username", "playerNum"]  ## use actual info here
         msg = pickle.dumps(playerInfo)
         self.gamesocket.send(msg)
