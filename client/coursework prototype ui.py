@@ -15,8 +15,7 @@ class Window(QWidget):
         self.netInfo = 0
         QWidget.__init__(self, parent)     
         self.setGeometry(100,100,1280,720)   
-        self.gamestate = "pre lobby"
-        self.potsize = 0
+        self.chips = 0
 
         # Put the widgets here
         self.startButton = QPushButton(self.tr("&Start"))       
@@ -34,6 +33,7 @@ class Window(QWidget):
         self.hand1 = QLabel("hand1")
         self.hand2 = QLabel("hand2")
         self.potLabel = QLabel("0")
+        self.chipLabel = QLabel('0')
 
         centerLayout = QHBoxLayout()
         centerRow = QHBoxLayout()
@@ -45,7 +45,7 @@ class Window(QWidget):
 
         self.centerGroup = QGroupBox()
         self.centerGroup.setLayout(centerLayout)
-        centerRow.addStretch(2)
+        centerRow.addStretch(1)
         centerRow.addWidget(self.centerGroup)
         centerRow.addWidget(self.potLabel)
         centerRow.addStretch(1)
@@ -59,6 +59,7 @@ class Window(QWidget):
         self.handGroup.setLayout(handLayout)
         handrow.addStretch(3)
         handrow.addWidget(self.handGroup)
+        handrow.addWidget(self.chipLabel)
         handrow.addStretch(3)
 
         self.radioGroup = QButtonGroup()
@@ -73,8 +74,6 @@ class Window(QWidget):
         self.startButton.clicked.connect(self.startListener)
         self.thread.output.connect(self.success)
         self.thread.printTime.connect(self.printer)
-        self.thread.updatePot.connect(self.potUpdate)
-
 
         layout = QVBoxLayout()
         layout.addWidget(self.startButton)
@@ -90,6 +89,10 @@ class Window(QWidget):
         
 
         #layout.addLayout(self.inputLayout)
+        self.selectionCRdo.hide()
+        self.selectionRRdo.hide()
+        self.selectionFRdo.hide()
+        self.buttonConfirm.hide()
 
         self.setLayout(layout)        
         self.setWindowTitle(self.tr("Poker Game"))
@@ -102,19 +105,23 @@ class Window(QWidget):
     def success(self):
         print("we did it")
 
-    def potUpdate(self):
-        self.potLabel.setText(str(window.potsize))
-
     def printer(self):
         if isinstance(window.printvalue, list ):
             if window.printvalue[0]=='2':
                 self.hand1.setText(str(window.printvalue[1][0]))
                 self.hand2.setText(str(window.printvalue[1][1]))
-                self.potLabel.setText(str(window.printvalue[2]))
-                self.potsize=int(window.printvalue[2])
-                print(window.printvalue)
-                print(window.printvalue[0])
-                print("fucked")
+                chipinfo = window.printvalue[3]
+                print(chipinfo)
+                if chipinfo[1] == 0:
+                    print("small blind")
+                    self.chips = int(chipinfo[0] - ((1/3)*int(window.printvalue[2])))
+                elif chipinfo[1] == 1:
+                    print("big blind")
+                    self.chips = int(chipinfo[0] - ((2/3)*int(window.printvalue[2])))
+                else:
+                    self.chips = int(chipinfo[0])
+                self.chipLabel.setText(str(self.chips))
+                
             elif window.printvalue[0]=='3':
                 self.flop1.setText(str(window.printvalue[1][0]))
                 self.flop2.setText(str(window.printvalue[1][1]))
@@ -123,6 +130,7 @@ class Window(QWidget):
                 self.flop4.setText(str(window.printvalue[1]))
             elif window.printvalue[0]=='5':
                 self.flop5.setText(str(window.printvalue[1]))
+
             else:
                 printval = str(window.printvalue)
                 self.printerLabel.setText(printval)
@@ -131,7 +139,10 @@ class Window(QWidget):
             self.printerLabel.setText(printval)
 
     def takeInput(self):
-        self.radioGroup.show()
+        window.selectionCRdo.show()
+        window.selectionRRdo.show()
+        window.selectionFRdo.show()
+        window.buttonConfirm.show()
 
     def threadDied(self):
         pass
@@ -140,7 +151,6 @@ class Window(QWidget):
 class Worker(QThread):
     output = pyqtSignal()       # declare signals
     printTime = pyqtSignal()
-    updatePot = pyqtSignal()
 
     def __init__(self,window , parent = None):
         QThread.__init__(self, parent)
@@ -156,18 +166,25 @@ class Worker(QThread):
 
     def getInput(self):
         if window.selectionCRdo.isChecked():
+            window.chips -= self.currentBet
+            if window.chips<0:
+                window.chips = 0
+            window.chipLabel.setText(str(window.chips))
             val = 'C'
         elif window.selectionRRdo.isChecked():
             val = 'R'
         elif window.selectionFRdo.isChecked():
             val = 'F'
         val = pickle.dumps(val)
+        window.selectionCRdo.hide()
+        window.selectionRRdo.hide()
+        window.selectionFRdo.hide()
+        window.buttonConfirm.hide()
         self.gamesocket.send(val)
         
         
 
     def run(self):      
-        window.gameState = "lobby"
         window.printvalue = "connecting..."
         
         print("rerun")
@@ -210,16 +227,18 @@ class Worker(QThread):
             try:
                 data = data.split('#')
                 if data[0]== '1':
-                    if len(data) == 3:
-                        print(window.potsize , int(data[2]))
-                        window.potsize = window.potsize + int(data[2])
-                        window.printvalue = "the current bet to call is "+  str(data[2])
-                        print(window.potsize , int(data[2]))
-                        self.printTime.emit()
-                        if int(data[2]) != 0:
-                            print(window.potsize)
-                            self.updatePot.emit()
-                    self.takeInput()
+                    try:
+                        pot = int(data[1])
+                        pickled = pickle.dumps("None")
+                        self.gamesocket.send(pickled)
+                        window.potLabel.setText(str(pot))
+                    except Exception as error:
+                        print(error)
+                        if len(data) == 3:
+                            self.currentBet = int(data[2])
+                            window.printvalue = "the current bet to call is "+  str(data[2])
+                            self.printTime.emit()
+                        self.takeInput()
                 else:
                     window.printvalue = data[1]
                     self.printTime.emit()
@@ -233,8 +252,10 @@ class Worker(QThread):
         print("success")
 
     def takeInput(self):
-        window.radioGroup.show()
-
+        window.selectionCRdo.show()
+        window.selectionRRdo.show()
+        window.selectionFRdo.show()
+        window.buttonConfirm.show()
 
 app = QApplication(sys.argv)
 window = Window()
