@@ -169,10 +169,10 @@ class Hand(Table):                              # class created for each hand of
         
         for player in self.players:
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
-        
+        """
         for ii in range(0, len(self.players)):
-            self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind])
-
+            self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind,[self.players[ii].chips,ii]])
+        """
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
             
@@ -180,6 +180,10 @@ class Hand(Table):                              # class created for each hand of
             self.players[y].chips = self.playerChips[y]        # might need to use super and make this a child
             self.players[y].stillIn = True
             self.players[y].contributed = 0
+
+        for ii in range(0, len(self.players)):
+            self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind,[self.players[ii].chips,ii]])
+
         for hand in self.players:
             print(hand.card1, hand.card2)
         print(self.centre)
@@ -188,6 +192,13 @@ class Hand(Table):                              # class created for each hand of
         message = pickle.dumps(message)
         self.players[i].socket.send(message)
 
+    def getPotSize(self):
+        potsize = 0
+        for player in self.players:
+            potsize += player.contributed
+        print(potsize)
+        return potsize
+    
     def recvText(self, i, message):            #returns the response to the question ask
         message = '1#'+message
         message = pickle.dumps(message)
@@ -239,7 +250,8 @@ class Hand(Table):                              # class created for each hand of
                 blinds = True
 
             while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and remaining>1:
-                
+                for iii in range(len(self.players)):
+                    self.recvText(iii,str(self.getPotSize()))   # recvText() is better for synchronisation reasons, without client hasnt fully processed this therefor blocking next message
                 print("progressed")
                 if blinds == True and i == 0:
                     currentBet = currentBet-self.sBlind 
