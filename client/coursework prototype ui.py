@@ -16,6 +16,7 @@ class Window(QWidget):
         QWidget.__init__(self, parent)     
         self.setGeometry(100,100,1280,720)   
         self.gamestate = "pre lobby"
+        self.potsize = 0
 
         # Put the widgets here
         self.startButton = QPushButton(self.tr("&Start"))       
@@ -32,27 +33,33 @@ class Window(QWidget):
         self.flop5 = QLabel("card5")
         self.hand1 = QLabel("hand1")
         self.hand2 = QLabel("hand2")
+        self.potLabel = QLabel("0")
 
         centerLayout = QHBoxLayout()
-        centerLayout.addStretch(1)      # stretch should go outside of box in another seperate layout
+        centerRow = QHBoxLayout()
         centerLayout.addWidget(self.flop1)
         centerLayout.addWidget(self.flop2)
         centerLayout.addWidget(self.flop3)
         centerLayout.addWidget(self.flop4)
         centerLayout.addWidget(self.flop5)
-        centerLayout.addStretch(1)
 
         self.centerGroup = QGroupBox()
         self.centerGroup.setLayout(centerLayout)
+        centerRow.addStretch(2)
+        centerRow.addWidget(self.centerGroup)
+        centerRow.addWidget(self.potLabel)
+        centerRow.addStretch(1)
 
         handLayout = QHBoxLayout()
-        handLayout.addStretch(3)
+        handrow = QHBoxLayout()
         handLayout.addWidget(self.hand1)
         handLayout.addWidget(self.hand2)
-        handLayout.addStretch(3)
 
         self.handGroup = QGroupBox()
         self.handGroup.setLayout(handLayout)
+        handrow.addStretch(3)
+        handrow.addWidget(self.handGroup)
+        handrow.addStretch(3)
 
         self.radioGroup = QButtonGroup()
         self.radioGroup.addButton(self.selectionCRdo)
@@ -66,16 +73,16 @@ class Window(QWidget):
         self.startButton.clicked.connect(self.startListener)
         self.thread.output.connect(self.success)
         self.thread.printTime.connect(self.printer)
-        
+        self.thread.updatePot.connect(self.potUpdate)
 
 
         layout = QVBoxLayout()
         layout.addWidget(self.startButton)
         layout.addWidget(self.printerLabel)
         layout.addStretch(1)
-        layout.addWidget(self.centerGroup)
+        layout.addLayout(centerRow)
         layout.addStretch(1)
-        layout.addWidget(self.handGroup)
+        layout.addLayout(handrow)
         layout.addWidget(self.selectionCRdo)
         layout.addWidget(self.selectionRRdo)
         layout.addWidget(self.selectionFRdo)
@@ -95,20 +102,26 @@ class Window(QWidget):
     def success(self):
         print("we did it")
 
-
+    def potUpdate(self):
+        self.potLabel.setText(str(window.potsize))
 
     def printer(self):
         if isinstance(window.printvalue, list ):
-            if window.printvalue[0]==2:
+            if window.printvalue[0]=='2':
                 self.hand1.setText(str(window.printvalue[1][0]))
                 self.hand2.setText(str(window.printvalue[1][1]))
-            elif window.printvalue[0]==3:
+                self.potLabel.setText(str(window.printvalue[2]))
+                self.potsize=int(window.printvalue[2])
+                print(window.printvalue)
+                print(window.printvalue[0])
+                print("fucked")
+            elif window.printvalue[0]=='3':
                 self.flop1.setText(str(window.printvalue[1][0]))
                 self.flop2.setText(str(window.printvalue[1][1]))
                 self.flop3.setText(str(window.printvalue[1][2]))
-            elif window.printvalue[0]==4:
+            elif window.printvalue[0]=='4':
                 self.flop4.setText(str(window.printvalue[1]))
-            elif window.printvalue[0]==5:
+            elif window.printvalue[0]=='5':
                 self.flop5.setText(str(window.printvalue[1]))
             else:
                 printval = str(window.printvalue)
@@ -127,12 +140,13 @@ class Window(QWidget):
 class Worker(QThread):
     output = pyqtSignal()       # declare signals
     printTime = pyqtSignal()
+    updatePot = pyqtSignal()
 
     def __init__(self,window , parent = None):
         QThread.__init__(self, parent)
         self.exiting = False
         window.buttonConfirm.clicked.connect(self.getInput)
-
+        
     def __del__(self):    
         self.exiting = True
         self.wait()
@@ -155,6 +169,8 @@ class Worker(QThread):
     def run(self):      
         window.gameState = "lobby"
         window.printvalue = "connecting..."
+        
+        print("rerun")
         self.printTime.emit()
         self.gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
         """for row in serverList:
@@ -186,6 +202,7 @@ class Worker(QThread):
 
 
     def gameLoop(self):    
+        
         while True:
             data = self.gamesocket.recv(1024)
             data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
@@ -194,8 +211,14 @@ class Worker(QThread):
                 data = data.split('#')
                 if data[0]== '1':
                     if len(data) == 3:
+                        print(window.potsize , int(data[2]))
+                        window.potsize = window.potsize + int(data[2])
                         window.printvalue = "the current bet to call is "+  str(data[2])
+                        print(window.potsize , int(data[2]))
                         self.printTime.emit()
+                        if int(data[2]) != 0:
+                            print(window.potsize)
+                            self.updatePot.emit()
                     self.takeInput()
                 else:
                     window.printvalue = data[1]
