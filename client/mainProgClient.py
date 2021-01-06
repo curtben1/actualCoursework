@@ -40,7 +40,7 @@ def playGame(serverNum, serverList):
             host = row[2]
             break"""
     port = 6060         # port forwarded this on servers router
-    gamesocket.connect(("86.128.35.53", port))
+    gamesocket.connect(("81.135.23.12", port))
     playerInfo = ["username", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
@@ -71,11 +71,16 @@ def playGame(serverNum, serverList):
         try:
             data = data.split('#')
             if data[0]== '1':
-                if len(data) == 3:
-                    print("the current bet to call is ", data[2])
-                val = input(data[1])
-                val = pickle.dumps(val)
-                gamesocket.send(val)
+                try:
+                    pot = int(data[1])
+                    pickled  = pickle.dumps("None")
+                    gamesocket.send(pickled)
+                except:
+                    if len(data) == 3:
+                        print("the current bet to call is ", data[2])
+                    val = input(data[1])
+                    val = pickle.dumps(val)
+                    gamesocket.send(val)
             else:
                 print(data[1])
         except:
