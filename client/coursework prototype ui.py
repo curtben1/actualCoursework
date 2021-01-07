@@ -35,6 +35,32 @@ class Window(QWidget):
         self.potLabel = QLabel("0")
         self.chipLabel = QLabel('0')
 
+        self.raiseGroup = QGroupBox()
+        self.raiseTxt = QSpinBox()
+        self.raiseTxt.setValue(0)
+        self.raiseSlider = QSlider(Qt.Horizontal)
+        self.raiseTxt.setMaximum(self.chips)
+        self.raiseSlider.setRange(0,self.chips)
+        self.raiseTxt.setSingleStep(1)
+        self.raiseSlider.setSingleStep(1)
+        self.raiseConfirm = QPushButton("Enter")
+        self.raiseLabel = QLabel("How much do you want to raise the bet by")
+
+
+        self.raiseLayout = QVBoxLayout()
+        self.subRaiseLayout = QHBoxLayout()
+        self.subRaiseLayout.addWidget(self.raiseTxt)
+        self.subRaiseLayout.addWidget(self.raiseConfirm)
+        self.raiseLayout.addWidget(self.raiseLabel)
+        self.raiseLayout.addWidget(self.raiseSlider)
+        self.raiseLayout.addLayout(self.subRaiseLayout)
+        self.raiseGroup.setLayout(self.raiseLayout)
+        self.raiseRow = QHBoxLayout()
+        self.raiseRow.addStretch(1)
+        self.raiseRow.addWidget(self.raiseGroup)
+        self.raiseRow.addStretch(1)
+        self.raiseGroup.hide()
+
         centerLayout = QHBoxLayout()
         centerRow = QHBoxLayout()
         centerLayout.addWidget(self.flop1)
@@ -74,6 +100,10 @@ class Window(QWidget):
         self.startButton.clicked.connect(self.startListener)
         self.thread.output.connect(self.success)
         self.thread.printTime.connect(self.printer)
+        self.raiseConfirm.clicked.connect(self.returnRaiseValue)
+        self.raiseTxt.editingFinished.connect(self.updateRaiseSlider)
+        self.raiseSlider.sliderReleased.connect(self.updateRaiseTxt)
+
 
         layout = QVBoxLayout()
         layout.addWidget(self.startButton)
@@ -82,6 +112,7 @@ class Window(QWidget):
         layout.addLayout(centerRow)
         layout.addStretch(1)
         layout.addLayout(handrow)
+        layout.addLayout(self.raiseRow)
         layout.addWidget(self.selectionCRdo)
         layout.addWidget(self.selectionRRdo)
         layout.addWidget(self.selectionFRdo)
@@ -104,6 +135,17 @@ class Window(QWidget):
       
     def success(self):
         print("we did it")
+
+    def updateRaiseSlider(self):
+        self.raiseSlider.setValue(int(self.raiseTxt.value()))
+
+    def updateRaiseTxt(self):
+        self.raiseTxt.setValue(int(self.raiseSlider.value()))
+
+    def returnRaiseValue(self):
+        retVal = pickle.dumps(self.raiseTxt.value())
+        self.raiseGroup.hide()
+        self.thread.gamesocket.send(retVal)
 
     def printer(self):
         if isinstance(window.printvalue, list ):
@@ -219,7 +261,7 @@ class Worker(QThread):
 
 
     def gameLoop(self):    
-        
+        self.blind = 0
         while True:
             data = self.gamesocket.recv(1024)
             data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
@@ -231,6 +273,8 @@ class Worker(QThread):
                         pot = int(data[1])
                         pickled = pickle.dumps("None")
                         self.gamesocket.send(pickled)
+                        if self.blind == 0:
+                            self.blind = (2/3)*pot
                         window.potLabel.setText(str(pot))
                     except Exception as error:
                         print(error)
@@ -239,6 +283,8 @@ class Worker(QThread):
                             window.printvalue = "the current bet to call is "+  str(data[2])
                             self.printTime.emit()
                         self.takeInput()
+                elif data[0] == '6':
+                    self.getRaise()
                 else:
                     window.printvalue = data[1]
                     self.printTime.emit()
@@ -250,6 +296,11 @@ class Worker(QThread):
     
     def testPrint(self):
         print("success")
+
+    def getRaise(self):
+        window.raiseTxt.setRange(self.blind, window.chips)
+        window.raiseSlider.setRange(self.blind, window.chips)
+        window.raiseGroup.show()
 
     def takeInput(self):
         window.selectionCRdo.show()
