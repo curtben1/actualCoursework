@@ -45,7 +45,10 @@ class Window(QWidget):
         self.raiseSlider.setSingleStep(1)
         self.raiseConfirm = QPushButton("Enter")
         self.raiseLabel = QLabel("How much do you want to raise the bet by")
+        self.back = QPixmap("assetts/gray_ba0k.png")
 
+        self.back = self.back.scaledToWidth(96)
+        self.resetCards()
 
         self.raiseLayout = QVBoxLayout()
         self.subRaiseLayout = QHBoxLayout()
@@ -132,6 +135,16 @@ class Window(QWidget):
     def startListener(self):
         # show all of the stuff
         self.thread.listen()
+
+    def resetCards(self):
+        
+        self.flop1.setPixmap(self.back)
+        self.flop2.setPixmap(self.back)
+        self.flop3.setPixmap(self.back)
+        self.flop4.setPixmap(self.back)
+        self.flop5.setPixmap(self.back)
+        self.hand1.setPixmap(self.back)
+        self.hand2.setPixmap(self.back)
       
     def success(self):
         print("we did it")
@@ -147,11 +160,22 @@ class Window(QWidget):
         self.raiseGroup.hide()
         self.thread.gamesocket.send(retVal)
 
+    def createPixmap(self, cardNum = None):
+        if cardNum == None:
+            fileName = "assetts/"+str(window.printvalue[1][0])+str(window.printvalue[1][1])+".png"
+        else:
+            fileName = "assetts/"+str(window.printvalue[1][cardNum][0])+str(window.printvalue[1][cardNum][1])+".png"
+        cardPic = QPixmap(fileName)
+        cardPic = cardPic.scaledToWidth(96)
+        return cardPic
+
+    
+
     def printer(self):
         if isinstance(window.printvalue, list ):
             if window.printvalue[0]=='2':
-                self.hand1.setText(str(window.printvalue[1][0]))
-                self.hand2.setText(str(window.printvalue[1][1]))
+                self.hand1.setPixmap(self.createPixmap(0))
+                self.hand2.setPixmap(self.createPixmap(1))
                 chipinfo = window.printvalue[3]
                 print(chipinfo)
                 if chipinfo[1] == 0:
@@ -165,13 +189,14 @@ class Window(QWidget):
                 self.chipLabel.setText(str(self.chips))
                 
             elif window.printvalue[0]=='3':
-                self.flop1.setText(str(window.printvalue[1][0]))
-                self.flop2.setText(str(window.printvalue[1][1]))
-                self.flop3.setText(str(window.printvalue[1][2]))
+
+                self.flop1.setPixmap(self.createPixmap(0))
+                self.flop2.setPixmap(self.createPixmap(1))
+                self.flop3.setPixmap(self.createPixmap(2))
             elif window.printvalue[0]=='4':
-                self.flop4.setText(str(window.printvalue[1]))
+                self.flop4.setPixmap(self.createPixmap())
             elif window.printvalue[0]=='5':
-                self.flop5.setText(str(window.printvalue[1]))
+                self.flop5.setPixmap(self.createPixmap())
 
             else:
                 printval = str(window.printvalue)
