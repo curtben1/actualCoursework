@@ -199,8 +199,8 @@ class Hand(Table):                              # class created for each hand of
         print(potsize)
         return potsize
     
-    def recvText(self, i, message):            #returns the response to the question ask
-        message = '1#'+message
+    def recvText(self, i, message,tag = 1):            #returns the response to the question ask
+        message = str(tag)+'#'+message
         message = pickle.dumps(message)
         self.players[i].socket.send(message)
         print("sent")
@@ -281,7 +281,7 @@ class Hand(Table):                              # class created for each hand of
                             self.sendText(i, output)                                                # send over network
                         else:
                             output = "How much do you want to raise it by? "
-                            amount = int(self.recvText(i, output))                                    # send over network and take answer
+                            amount = int(self.recvText(i, output,'6'))                                    # send over network and take answer
                             bet = currentBet+ amount
                             while bet > self.players[i].chips-self.players[i].contributed or amount<self.bBlind:
                                 if bet> self.players[i].chips-self.players[i].contributed:
@@ -291,7 +291,7 @@ class Hand(Table):                              # class created for each hand of
                                     output = "that is below the minimum raise of the big blind"
                                     self.sendText(i, output)                                        # send over network
                                 output = "How much do you want to raise it by? "
-                                amount = int(self.recvText(i, output))                                              # send and recieve over the network
+                                amount = int(self.recvText(i, output),'6')                                              # send and recieve over the network
                                 bet = currentBet+amount
                             currentBet = bet
                     elif action  == 'F':
