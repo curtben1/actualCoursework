@@ -218,8 +218,6 @@ class Hand(Table):                              # class created for each hand of
         for player in self.players:
             player.socket.send(message)
 
-
-
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
         currentBet = 0
@@ -242,7 +240,6 @@ class Hand(Table):                              # class created for each hand of
                 self.players[i].contributed = self.bBlind
                 self.playerPrinter()
                 currentBet = self.bBlind
-                
                 raiser = i+1
                 raised = counter
                 again = True
@@ -341,8 +338,7 @@ class Hand(Table):                              # class created for each hand of
                     winners[j][1] = winners[j][1]-winners[i][1]
             winners[i][1] = 0
             self.players[winners[i][0]].chips+= total
-        
-             
+                 
     def findWinner(self):                       # returns either the index of a single winner or a list of indexs of tied winners
         print("finding winner")
         winner = None
