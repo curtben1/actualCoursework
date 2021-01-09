@@ -17,6 +17,7 @@ host = "86.157.43.62"   # ip of my home pc add this in later and maybe replace w
 port = 5050 # port forward this on my router
 s.connect((host, port))
 servers = []"""
+
 def options(menu):                
     if menu == "HOST":
         uName = input("what is your username (no spaces)")        # A placeholder until actual usernames are implemented 
@@ -70,7 +71,7 @@ def playGame(serverNum, serverList):
         
         try:
             data = data.split('#')
-            if data[0]== '1':
+            if data[0]== '1'or data[0]=='6':
                 try:
                     pot = int(data[1])
                     pickled  = pickle.dumps("None")

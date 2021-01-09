@@ -16,8 +16,9 @@ class Window(QWidget):
         QWidget.__init__(self, parent)     
         self.setGeometry(100,100,1280,720)   
         self.chips = 0
-
+        self.players = None
         # Put the widgets here
+        self.opponentBox  = QGroupBox()
         self.startButton = QPushButton(self.tr("&Start"))       
         self.printerLabel = QLabel("placeholder")
         self.outputLabel = QLabel("placeholder")
@@ -34,6 +35,8 @@ class Window(QWidget):
         self.hand2 = QLabel("hand2")
         self.potLabel = QLabel("0")
         self.chipLabel = QLabel('0')
+
+        
 
         self.raiseGroup = QGroupBox()
         self.raiseTxt = QSpinBox()
@@ -103,23 +106,25 @@ class Window(QWidget):
         self.startButton.clicked.connect(self.startListener)
         self.thread.output.connect(self.success)
         self.thread.printTime.connect(self.printer)
+        self.thread.drawOps.connect(self.drawOpponents)
         self.raiseConfirm.clicked.connect(self.returnRaiseValue)
         self.raiseTxt.editingFinished.connect(self.updateRaiseSlider)
         self.raiseSlider.sliderReleased.connect(self.updateRaiseTxt)
 
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.startButton)
-        layout.addWidget(self.printerLabel)
-        layout.addStretch(1)
-        layout.addLayout(centerRow)
-        layout.addStretch(1)
-        layout.addLayout(handrow)
-        layout.addLayout(self.raiseRow)
-        layout.addWidget(self.selectionCRdo)
-        layout.addWidget(self.selectionRRdo)
-        layout.addWidget(self.selectionFRdo)
-        layout.addWidget(self.buttonConfirm)
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.startButton)
+        self.layout.addWidget(self.printerLabel)
+        self.layout.addWidget(self.opponentBox)
+        self.layout.addStretch(1)
+        self.layout.addLayout(centerRow)
+        self.layout.addStretch(1)
+        self.layout.addLayout(handrow)
+        self.layout.addLayout(self.raiseRow)
+        self.layout.addWidget(self.selectionCRdo)
+        self.layout.addWidget(self.selectionRRdo)
+        self.layout.addWidget(self.selectionFRdo)
+        self.layout.addWidget(self.buttonConfirm)
         
 
         #layout.addLayout(self.inputLayout)
@@ -128,7 +133,7 @@ class Window(QWidget):
         self.selectionFRdo.hide()
         self.buttonConfirm.hide()
 
-        self.setLayout(layout)        
+        self.setLayout(self.layout)        
         self.setWindowTitle(self.tr("Poker Game"))
         
 
@@ -137,7 +142,6 @@ class Window(QWidget):
         self.thread.listen()
 
     def resetCards(self):
-        
         self.flop1.setPixmap(self.back)
         self.flop2.setPixmap(self.back)
         self.flop3.setPixmap(self.back)
@@ -148,6 +152,33 @@ class Window(QWidget):
       
     def success(self):
         print("we did it")
+
+    def drawOpponents(self):
+        layouts = []
+        for i in range(len(self.players)):
+            tempCardLayout = QHBoxLayout()
+            tempBoxLayout = QVBoxLayout
+            layouts.append({"cardLayout": tempCardLayout,"boxLayout":tempBoxLayout})
+        self.oppenentLayout = QHBoxLayout()
+        j = 0
+        for player in self.players:
+            
+            tempGrp = QGroupBox(player["username"])
+            tempLbl = QLabel("chips: 0")
+            tempCard1 = QLabel()
+            tempCard2 = QLabel()
+            player["widgets"] = {"group":tempGrp,"card1":tempCard1,"card2":tempCard2,"chips":0,"chipLabel":tempLbl}
+            layouts[j]["cardLayout"].addWidget(tempCard1)
+            layouts[j]["cardLayout"].addWidget(tempCard2)
+            layouts[j]["boxLayout"].addLayout(layouts[j]["cardLayout"])
+            layouts[j]["boxLayout"].addWidget(tempLbl)
+            tempGrp.setLayout(layouts[j]["boxLayout"])
+            self.oppenentLayout.addWidget(tempGrp)
+
+            j += 1
+        self.opponentBox.setLayout(self.oppenentLayout)
+        print(self.players)
+
 
     def updateRaiseSlider(self):
         self.raiseSlider.setValue(int(self.raiseTxt.value()))
@@ -218,6 +249,7 @@ class Window(QWidget):
 class Worker(QThread):
     output = pyqtSignal()       # declare signals
     printTime = pyqtSignal()
+    drawOps = pyqtSignal()
 
     def __init__(self,window , parent = None):
         QThread.__init__(self, parent)
@@ -282,6 +314,8 @@ class Worker(QThread):
                     print(data2)
                     print("game starting")
                     break
+        window.players = data2
+        self.drawOps.emit()
         self.gameLoop()
 
 
