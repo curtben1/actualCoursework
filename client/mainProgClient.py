@@ -42,7 +42,7 @@ def playGame(serverNum, serverList):
             break"""
     port = 6060         # port forwarded this on servers router
     gamesocket.connect(("81.135.23.12", port))
-    playerInfo = ["username", "playerNum"]  ## use actual info here
+    playerInfo = ["command line", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
 
@@ -65,7 +65,7 @@ def playGame(serverNum, serverList):
                 break
     while True:
         print("again")
-        data = gamesocket.recv(1024)
+        data = gamesocket.recv(4096)
         print("recieved")
         data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
         
@@ -85,6 +85,16 @@ def playGame(serverNum, serverList):
             else:
                 print(data[1])
         except:
+            print("notstring")
+            try:
+                print("sending")
+                myvar = data[0]["chips"]
+                var = pickle.dumps("None")
+                gamesocket.send(var)
+                print("sent")
+            except Exception as exception:
+                print(exception,"data was ", data)
+                pass
             print(data)
             if data  == "game over":
                 return "Game Over" 
