@@ -1,6 +1,7 @@
 import random
 import socket
 import pickle
+import time
 """
 main logic for a poker game, used by the game host
 
@@ -85,7 +86,6 @@ def shuffle():
              [13,2],
              [14,2],
              
-             [1,3],
              [2,3],
              [3,3],
              [4,3],
@@ -128,15 +128,18 @@ class Table:                                    # class created to run and store
         self.hands = self.hands+1
         
         self.newhand = Hand(self.blind,self.playerObjs, self.gameSocket,self.playerChips,self.totalPlayers)
-        self.blind = self.blind*2
+        self.blind = self.blind+100
         self.newhand.deal()
         self.newhand.bettingRound()
-        print(self.newhand.flop())
-        self.newhand.bettingRound()
-        print(self.newhand.turn())
-        self.newhand.bettingRound()
-        print(self.newhand.river())
-        self.newhand.bettingRound()
+        if self.newhand.remaining > 1:
+            print(self.newhand.flop())
+            self.newhand.bettingRound()
+            if self.newhand.remaining > 1:
+                print(self.newhand.turn())
+                self.newhand.bettingRound()
+                if self.newhand.remaining > 1:
+                    print(self.newhand.river())
+                    self.newhand.bettingRound()
         winners = self.newhand.findWinner()
         self.newhand.allocateChips(winners)
         handRes = self.newhand.players
@@ -169,10 +172,10 @@ class Hand(Table):                              # class created for each hand of
         
         for player in self.players:
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
-        """
+        
         for ii in range(0, len(self.players)):
             self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind,[self.players[ii].chips,ii]])
-        """
+        
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
             
@@ -200,13 +203,21 @@ class Hand(Table):                              # class created for each hand of
         return potsize
     
     def recvText(self, i, message,tag = 1):            #returns the response to the question ask
-        message = str(tag)+'#'+message
-        message = pickle.dumps(message)
-        self.players[i].socket.send(message)
-        print("sent")
-        data = self.players[i].socket.recv(1024)
-        data = pickle.loads(data)
-        print("recieved")
+        if isinstance(message,str):
+            message = str(tag)+'#'+message
+            message = pickle.dumps(message)
+            self.players[i].socket.send(message)
+            print("sent")
+            data = self.players[i].socket.recv(1024)
+            data = pickle.loads(data)
+            print("recieved")
+        else:
+            message = pickle.dumps(message)
+            self.players[i].socket.send(message)
+            print("sent")
+            data = self.players[i].socket.recv(1024)
+            data = pickle.loads(data)
+            print("recieved")
         return data
 
     def playerPrinter(self):
@@ -217,6 +228,14 @@ class Hand(Table):                              # class created for each hand of
         message = pickle.dumps(message)
         for player in self.players:
             player.socket.send(message)
+
+    def createDict(self):
+        tempDict = []
+        for i in range(0,len(self.players)):
+            player = self.players[i]
+            tempDict.append({"chips": player.chips-player.contributed,"stillIn":player.stillIn,"contributed":player.contributed, "action": player.action})
+            print(tempDict)
+        return tempDict
 
     def bettingRound(self):                     # no return, acts on self variable only
         # make this ready for network use by abstracting some of the get input fuctionality 
@@ -229,11 +248,11 @@ class Hand(Table):                              # class created for each hand of
         self.round = self.round +1
         while again  == True:
             again = False
-            remaining = 0
+            self.remaining = 0
             i = 0
             for j in range(0,len(self.players)):
                 if self.players[j].stillIn == True:
-                    remaining += 1
+                    self.remaining += 1
             if self.round == 1 and blinds == False:           #code that facillitates small and big blind
                 self.players[i].contributed = self.sBlind
                 i += 1
@@ -246,15 +265,17 @@ class Hand(Table):                              # class created for each hand of
                 i+= 1
                 blinds = True
 
-            while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and remaining>1:
+            while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and self.remaining>1:
                 for iii in range(len(self.players)):
-                    self.recvText(iii,str(self.getPotSize()))   # recvText() is better for synchronisation reasons, without client hasnt fully processed this therefor blocking next message
+                    time.sleep(0.1)
+                    self.recvText(iii,self.createDict())   # recvText() is better for synchronisation reasons, without client hasnt fully processed this therefor blocking next message
+                    
                 print("progressed")
                 if blinds == True and i == 0:
                     currentBet = currentBet-self.sBlind 
                 elif blinds == True and i == 1:
                     currentBet = currentBet-self.sBlind
-                if self.players[i].stillIn == True:
+                if self.players[i].stillIn == True and self.players[i].chips>0:
                     print(i)
                     if currentBet != 0:
                         output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
@@ -294,12 +315,13 @@ class Hand(Table):                              # class created for each hand of
                     elif action  == 'F':
                         bet = 0
                         self.players[i].stillIn = False
+                    self.players[i].action = action
                     self.players[i].contributed = self.players[i].contributed + bet        #alters ther individual players contribution
                 i += 1
-                remaining = 0
+                self.remaining = 0
                 for j in range(0,len(self.players)):
-                    if self.players[j].stillIn == True:
-                        remaining += 1
+                    if self.players[j].stillIn == True and self.players[j].chips > 0:
+                        self.remaining += 1
             counter = counter+1
 
     def flop(self):                             # returns [[card1],[card2],[card3]]
@@ -338,6 +360,10 @@ class Hand(Table):                              # class created for each hand of
                     winners[j][1] = winners[j][1]-winners[i][1]
             winners[i][1] = 0
             self.players[winners[i][0]].chips+= total
+        print("after allocation: ")
+        for player in self.players:
+            player.contributed = 0
+        self.playerPrinter()
                  
     def findWinner(self):                       # returns either the index of a single winner or a list of indexs of tied winners
         print("finding winner")
@@ -603,7 +629,7 @@ class Player:
         self.wonObjectives = list
         self.chips = 0
         self.socket = None
-
+        self.action = ""
 
     def setCards(self,card1,card2):
         self.card1 = card1
