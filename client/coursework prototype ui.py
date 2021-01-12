@@ -17,6 +17,9 @@ class Window(QWidget):
         self.setGeometry(100,100,1280,720)   
         self.chips = 0
         self.players = None
+        self.username = "laptop" # get from accounts system
+        self.potSize = 0
+
         # Put the widgets here
         self.opponentBox  = QGroupBox()
         self.startButton = QPushButton(self.tr("&Start"))       
@@ -49,8 +52,11 @@ class Window(QWidget):
         self.raiseConfirm = QPushButton("Enter")
         self.raiseLabel = QLabel("How much do you want to raise the bet by")
         self.back = QPixmap("assetts/gray_ba0k.png")
+        self.back3 = QPixmap("assetts/folded.png")
 
         self.back = self.back.scaledToWidth(96)
+        self.back2= self.back.scaledToWidth(48)
+        self.back3 = self.back3.scaledToWidth(48)
         self.resetCards()
 
         self.raiseLayout = QVBoxLayout()
@@ -104,9 +110,10 @@ class Window(QWidget):
 
         self.thread.finished.connect(self.threadDied)
         self.startButton.clicked.connect(self.startListener)
-        self.thread.output.connect(self.success)
+        
         self.thread.printTime.connect(self.printer)
         self.thread.drawOps.connect(self.drawOpponents)
+        self.thread.inputTake.connect(self.takeInput)
         self.raiseConfirm.clicked.connect(self.returnRaiseValue)
         self.raiseTxt.editingFinished.connect(self.updateRaiseSlider)
         self.raiseSlider.sliderReleased.connect(self.updateRaiseTxt)
@@ -149,31 +156,37 @@ class Window(QWidget):
         self.flop5.setPixmap(self.back)
         self.hand1.setPixmap(self.back)
         self.hand2.setPixmap(self.back)
-      
-    def success(self):
-        print("we did it")
+        self.potLabel.setText('0')
+        self.potSize = 0
 
     def drawOpponents(self):
         layouts = []
         for i in range(len(self.players)):
             tempCardLayout = QHBoxLayout()
-            tempBoxLayout = QVBoxLayout
+            tempBoxLayout = QVBoxLayout()
             layouts.append({"cardLayout": tempCardLayout,"boxLayout":tempBoxLayout})
         self.oppenentLayout = QHBoxLayout()
         j = 0
         for player in self.players:
-            
-            tempGrp = QGroupBox(player["username"])
-            tempLbl = QLabel("chips: 0")
-            tempCard1 = QLabel()
-            tempCard2 = QLabel()
-            player["widgets"] = {"group":tempGrp,"card1":tempCard1,"card2":tempCard2,"chips":0,"chipLabel":tempLbl}
-            layouts[j]["cardLayout"].addWidget(tempCard1)
-            layouts[j]["cardLayout"].addWidget(tempCard2)
-            layouts[j]["boxLayout"].addLayout(layouts[j]["cardLayout"])
-            layouts[j]["boxLayout"].addWidget(tempLbl)
-            tempGrp.setLayout(layouts[j]["boxLayout"])
-            self.oppenentLayout.addWidget(tempGrp)
+            if player["username"] != self.username:
+                tempGrp = QGroupBox(player["username"])
+                tempLbl = QLabel("chips: 0")
+                tempActn = QLabel("Yet to Act")
+                tempCard1 = QLabel()
+                tempCard2 = QLabel()
+                tempCard1.setPixmap(self.back2)
+                tempCard2.setPixmap(self.back2)
+
+                player["widgets"] = {"group":tempGrp,"card1":tempCard1,"card2":tempCard2,"chips":0,"chipLabel":tempLbl,"action":tempActn}
+                layouts[j]["boxLayout"].addWidget(tempActn)
+                layouts[j]["cardLayout"].addWidget(tempCard1)
+                layouts[j]["cardLayout"].addWidget(tempCard2)
+                layouts[j]["boxLayout"].addLayout(layouts[j]["cardLayout"])
+                layouts[j]["boxLayout"].addWidget(tempLbl)
+                tempGrp.setLayout(layouts[j]["boxLayout"])
+                self.oppenentLayout.addWidget(tempGrp)
+            else:
+                self.myPos = j
 
             j += 1
         self.opponentBox.setLayout(self.oppenentLayout)
@@ -203,33 +216,43 @@ class Window(QWidget):
     
 
     def printer(self):
+        print("printer")
         if isinstance(window.printvalue, list ):
-            if window.printvalue[0]=='2':
-                self.hand1.setPixmap(self.createPixmap(0))
-                self.hand2.setPixmap(self.createPixmap(1))
-                chipinfo = window.printvalue[3]
-                print(chipinfo)
-                if chipinfo[1] == 0:
-                    print("small blind")
-                    self.chips = int(chipinfo[0] - ((1/3)*int(window.printvalue[2])))
-                elif chipinfo[1] == 1:
-                    print("big blind")
-                    self.chips = int(chipinfo[0] - ((2/3)*int(window.printvalue[2])))
-                else:
-                    self.chips = int(chipinfo[0])
-                self.chipLabel.setText(str(self.chips))
+            if isinstance(window.printvalue[0],dict)==False:
                 
-            elif window.printvalue[0]=='3':
+                if window.printvalue[0]=='2':
+                    self.resetCards()
 
-                self.flop1.setPixmap(self.createPixmap(0))
-                self.flop2.setPixmap(self.createPixmap(1))
-                self.flop3.setPixmap(self.createPixmap(2))
-            elif window.printvalue[0]=='4':
-                self.flop4.setPixmap(self.createPixmap())
-            elif window.printvalue[0]=='5':
-                self.flop5.setPixmap(self.createPixmap())
+                    self.hand1.setPixmap(self.createPixmap(0))
+                    self.hand2.setPixmap(self.createPixmap(1))
+                    
+                    chipinfo = window.printvalue[3]
+                    print(chipinfo)
+                    if chipinfo[1] == 0:
+                        print("small blind")
+                        self.chips = int(chipinfo[0] - ((1/3)*int(window.printvalue[2])))
+                    elif chipinfo[1] == 1:
+                        print("big blind")
+                        self.chips = int(chipinfo[0] - ((2/3)*int(window.printvalue[2])))
+                    else:
+                        self.chips = int(chipinfo[0])
+                    self.chipLabel.setText(str(self.chips))
 
+                elif window.printvalue[0]=='3':
+
+                    self.flop1.setPixmap(self.createPixmap(0))
+                    self.flop2.setPixmap(self.createPixmap(1))
+                    self.flop3.setPixmap(self.createPixmap(2))
+                elif window.printvalue[0]=='4':
+                    self.flop4.setPixmap(self.createPixmap())
+                elif window.printvalue[0]=='5':
+                    self.flop5.setPixmap(self.createPixmap())
+
+                else:
+                    printval = str(window.printvalue)
+                    self.printerLabel.setText(printval)
             else:
+                print("dickt")
                 printval = str(window.printvalue)
                 self.printerLabel.setText(printval)
         else:
@@ -237,17 +260,19 @@ class Window(QWidget):
             self.printerLabel.setText(printval)
 
     def takeInput(self):
+        print("taking input")
         window.selectionCRdo.show()
         window.selectionRRdo.show()
         window.selectionFRdo.show()
         window.buttonConfirm.show()
 
     def threadDied(self):
+        print("thread died")
         pass
         # ran when thread dies, use as when quit game
 
 class Worker(QThread):
-    output = pyqtSignal()       # declare signals
+    inputTake = pyqtSignal()
     printTime = pyqtSignal()
     drawOps = pyqtSignal()
 
@@ -295,12 +320,12 @@ class Worker(QThread):
                 break"""
         port = 6060         # port forwarded this on servers router
         self.gamesocket.connect(("81.135.23.12", port))
-        playerInfo = ["username", "playerNum"]  ## use actual info here
+        playerInfo = [window.username, "playerNum"]  ## use actual info here
         msg = pickle.dumps(playerInfo)
         self.gamesocket.send(msg)
         while True: 
             
-            data2 = self.gamesocket.recv(4096)
+            data2 = self.gamesocket.recv(1024)
             if data2:
                 data2 = pickle.loads(data2)
                 if isinstance(data2, list):
@@ -336,22 +361,52 @@ class Worker(QThread):
                             self.blind = (2/3)*pot
                         window.potLabel.setText(str(pot))
                     except Exception as error:
-                        print(error)
+                        print(error, "from 349")
                         if len(data) == 3:
+                            print("length 2")
                             self.currentBet = int(data[2])
                             window.printvalue = "the current bet to call is "+  str(data[2])
                             self.printTime.emit()
-                        self.takeInput()
+                            print("emitted")
+                        self.inputTake.emit()
+                        print("inout taken")
                 elif data[0] == '6':
                     self.getRaise()
                 else:
                     window.printvalue = data[1]
                     self.printTime.emit()
-            except:
-                window.printvalue = data
-                self.printTime.emit()
-                if data  == "game over":
-                    return "Game Over" 
+            except Exception as erroragain:
+                print(erroragain, "error again from 340")
+                try:
+                    pot = window.potSize
+                    for i in range(len(data)):
+                        player = data[i]
+                        pot += player["contributed"]
+                        if i != window.myPos:
+                            window.players[i]["widgets"]["chips"] = player["chips"]
+                            window.players[i]["widgets"]["chipLabel"].setText("chips: " + str(player["chips"]))
+                            if player["stillIn"] == False:
+                                window.players[i]["widgets"]["card1"].setPixmap(window.folded)
+                                window.players[i]["widgets"]["card2"].setPixmap(window.folded)
+                                window.players[i]["widgets"]["action"].setText("Folded")
+                            else:
+                                action = player["action"]
+                                if action == 'C':
+                                    window.players[i]["widgets"]["action"].setText("Called/Checked")
+                                elif action == 'R':
+                                    window.players[i]["widgets"]["action"].setText("Raised")
+                        else:
+                            window.chipLabel.setText(str(player["chips"]))
+                    window.potLabel.setText(str(pot))
+                    var = pickle.dumps("None")
+                    self.gamesocket.send(var)
+
+                except Exception as error1:
+                    print(error1,"from 365")
+                    window.printvalue = data
+                    self.printTime.emit()
+                    if data  == "game over":
+                        return "Game Over" 
     
     def testPrint(self):
         print("success")
@@ -361,11 +416,7 @@ class Worker(QThread):
         window.raiseSlider.setRange(self.blind, window.chips)
         window.raiseGroup.show()
 
-    def takeInput(self):
-        window.selectionCRdo.show()
-        window.selectionRRdo.show()
-        window.selectionFRdo.show()
-        window.buttonConfirm.show()
+
 
 app = QApplication(sys.argv)
 window = Window()
