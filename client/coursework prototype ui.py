@@ -22,7 +22,11 @@ class Window(QWidget):
 
         # Put the widgets here
         self.opponentBox  = QGroupBox()
-        self.startButton = QPushButton(self.tr("&Start"))       
+        self.startButton = QPushButton(self.tr("&Start"))   
+        self.statsButton = QPushButton("statisitics")   
+        self.optionsButton = QPushButton("settings") 
+        self.quitButton = QPushButton("Quit Game")
+
         self.printerLabel = QLabel("placeholder")
         self.outputLabel = QLabel("placeholder")
         self.selectionCRdo = QRadioButton("Call/check")
@@ -38,8 +42,6 @@ class Window(QWidget):
         self.hand2 = QLabel("hand2")
         self.potLabel = QLabel("0")
         self.chipLabel = QLabel('0')
-
-        
 
         self.raiseGroup = QGroupBox()
         self.raiseTxt = QSpinBox()
@@ -117,22 +119,37 @@ class Window(QWidget):
         self.raiseConfirm.clicked.connect(self.returnRaiseValue)
         self.raiseTxt.editingFinished.connect(self.updateRaiseSlider)
         self.raiseSlider.sliderReleased.connect(self.updateRaiseTxt)
+        self.quitButton.clicked.connect(self.exitGame)
 
 
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.startButton)
-        self.layout.addWidget(self.printerLabel)
-        self.layout.addWidget(self.opponentBox)
-        self.layout.addStretch(1)
-        self.layout.addLayout(centerRow)
-        self.layout.addStretch(1)
-        self.layout.addLayout(handrow)
-        self.layout.addLayout(self.raiseRow)
-        self.layout.addWidget(self.selectionCRdo)
-        self.layout.addWidget(self.selectionRRdo)
-        self.layout.addWidget(self.selectionFRdo)
-        self.layout.addWidget(self.buttonConfirm)
-        
+        self.gamelayout = QVBoxLayout()
+        self.windowLayout = QVBoxLayout()
+        self.menuLayout = QVBoxLayout()
+
+        self.menuLayout.addWidget(self.startButton)
+        self.menuLayout.addWidget(self.optionsButton)
+        self.menuLayout.addWidget(self.quitButton)
+
+        self.gamelayout.addWidget(self.printerLabel)
+        self.gamelayout.addWidget(self.opponentBox)
+        self.gamelayout.addStretch(1)
+        self.gamelayout.addLayout(centerRow)
+        self.gamelayout.addStretch(1)
+        self.gamelayout.addLayout(handrow)
+        self.gamelayout.addLayout(self.raiseRow)
+        self.gamelayout.addWidget(self.selectionCRdo)
+        self.gamelayout.addWidget(self.selectionRRdo)
+        self.gamelayout.addWidget(self.selectionFRdo)
+        self.gamelayout.addWidget(self.buttonConfirm)
+
+        self.menuFrame = QFrame()
+        self.menuFrame.setLayout(self.menuLayout)
+        self.windowLayout.addWidget(self.menuFrame)
+
+        self.gameFrame = QFrame()
+        self.gameFrame.setLayout(self.gamelayout)
+        self.windowLayout.addWidget(self.gameFrame)
+        self.gameFrame.hide()
 
         #layout.addLayout(self.inputLayout)
         self.selectionCRdo.hide()
@@ -140,12 +157,16 @@ class Window(QWidget):
         self.selectionFRdo.hide()
         self.buttonConfirm.hide()
 
-        self.setLayout(self.layout)        
+        self.setLayout(self.windowLayout)        
         self.setWindowTitle(self.tr("Poker Game"))
+
+    def exitGame(self):
+        sys.exit()
         
 
     def startListener(self):
         # show all of the stuff
+        self.gameFrame.show()
         self.thread.listen()
 
     def resetCards(self):
@@ -268,6 +289,7 @@ class Window(QWidget):
 
     def threadDied(self):
         print("thread died")
+        self.gameFrame.hide()
         pass
         # ran when thread dies, use as when quit game
 
