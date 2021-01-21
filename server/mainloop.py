@@ -364,7 +364,17 @@ class Hand:                              # class created for each hand of the ga
         for player in self.players:
             player.contributed = 0
         self.playerPrinter()
-                 
+        self.endGame()
+
+    def endGame(self):
+        myDict = self.createDict()
+        myDict = ["ended",myDict]
+        for iii in range(len(self.players)):
+            time.sleep(0.1)
+            again = self.recvText(iii,myDict)
+            if again == False:
+                del self.players[iii]
+    
     def findWinner(self):                       # returns either the index of a single winner or a list of indexs of tied winners
         print("finding winner")
         winner = None

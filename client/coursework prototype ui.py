@@ -303,6 +303,7 @@ class Window(QWidget):
                     self.flop4.setPixmap(self.createPixmap())
                 elif window.printvalue[0] == '5':
                     self.flop5.setPixmap(self.createPixmap())
+                
 
                 else:
                     printval = str(window.printvalue)
@@ -457,6 +458,14 @@ class Worker(QThread):
             except Exception as erroragain:
                 print(erroragain, "error again from 340")
                 try:
+                    if data[0] == "ended":
+                        response = input("play again Y/N")
+                        if response == "Y":
+                            response = True
+                        else:
+                            response = False
+                        response = pickle.dumps(response)
+                        self.gamesocket.send(response)
                     pot = window.potSize
                     for i in range(len(data)):
                         player = data[i]
