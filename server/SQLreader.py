@@ -18,40 +18,47 @@ def readSQL(db, table, columnName, searchTerm):
     return results
 
 def readsList():
-    con = sql.connect("mainDatabase.db")
+    con = sql.connect("main.db")
     cur = con.cursor()
     #table = (table,)  
-    cur.execute("SELECT *FROM serverList")
+    cur.execute("SELECT *FROM 'server list'")
     results = cur.fetchall()
     return results
 
-def readStats():
-    con = sql.connect("mainDatabase.db")
+def addServer(ip):
+    con = sql.connect("main.db")
     cur = con.cursor()
-    #table = (table,)  
-    cur.execute("SELECT *FROM Statitics")
+    ip = (ip,)  
+    cur.execute("INSERT INTO 'server list' VALUES (Null,?,0,0)",ip)
     results = cur.fetchall()
     return results
 
-# ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
-    
-def writeHost(new1, new2):
-    con = sql.connect("mainDatabase.db")
-    cur = con.cursor()   
-    sqlcode = "INSERT INTO serverList VALUES (Null,?,?,1) "   
-    cur.execute(sqlcode,(new1, new2))
-    con.commit()
-    cur.fetchall()
-
-def writeSQL1(db,table , newValue):
-    con = sql.connect(db)
+def updatePlayers(playerNum):
+    con = sql.connect("main.db")
     cur = con.cursor()
-    table = (table,)    
-    sqlcode = "INSERT INTO ? VALUES (?,?,?,?,?,?) "   
-    cur.execute(sqlcode,(table, newValue[0],))
-    cur.fetchall()
-    
-# ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  ==  == 
+    ip = (ip,)  
+    cur.execute("INSERT INTO 'server list' VALUES (Null,?,0,0)",ip)
+    #cur.fetchall()
+
+
+def updateGameState():
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    cur.execute("INSERT INTO 'server list' VALUES (Null,Null,Null,1)")
+    #cur.fetchall()
+
+def readStats(user):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    user = (user, ) 
+    cur.execute("SELECT *FROM Statitics WHERE 'account num' = ?",user)
+    results = cur.fetchall()
+    return results
+
+#=========================================================================================================================================================
+
+
+#============================================================================================================================================================
 
 def encWriteSQL(db,table,uName,pWord):
     pass

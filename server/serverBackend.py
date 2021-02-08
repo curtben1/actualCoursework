@@ -34,22 +34,27 @@ class client(Thread):
         while 1:
             print("looping")
             inp = self.sock.recv(1024)
-            inp = inp.decode("ascii")
-            if inp  == "sList":
-                reply = ""
-                reply = sql.readsList()
-                reply = pickle.dumps(reply)
-            elif inp  == "stats":
-                reply = sql.readStats()
-                reply = reply.encode("ascii")
-                pass    # send the stats for the current account maybe across a few transmissions or as a file
-                
-            elif inp != "":
-                ipaddr = str(self.addr[0])
-                sql.writeHost(inp,ipaddr)
-                reply = "connected"
-                reply = reply.encode("ascii")
-                
+            inp = pickle.loads(inp)
+            if inp[0] == '0':
+                pass # server communications likely new server created or terminated
+            elif inp[0] == '1':
+                if inp[1]  == "sList":
+                    reply = sql.readsList()
+                    reply = pickle.dumps(reply)
+                elif inp[1]  == "stats":
+                    reply = sql.readStats()
+                    reply = pickle.dumps(reply)
+                    
+
+                elif inp != "":
+                    ipaddr = str(self.addr[0])
+                    sql.writeHost(inp,ipaddr)
+                    reply = "connected"
+                    reply = reply.encode("ascii")
+            elif inp[0] == '2':
+                pass # password/account realted request, confirm access, create account etc
+            elif inp[0] == '3':
+                pass # stats/balance updates
             try:
                 self.sock.send(reply)        # sends back a confirmation message
                 print("sent")
