@@ -1,0 +1,4 @@
+0 - server
+1 - client access request
+2 - password stuff
+3 - stats submissions

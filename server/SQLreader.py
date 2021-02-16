@@ -21,30 +21,41 @@ def readsList():
     con = sql.connect("main.db")
     cur = con.cursor()
     #table = (table,)  
-    cur.execute("SELECT *FROM 'server list'")
+    cur.execute("SELECT *FROM 'server_list'")
     results = cur.fetchall()
     return results
 
-def addServer(ip):
+def addServer(ip, name):
     con = sql.connect("main.db")
     cur = con.cursor()
     ip = (ip,)  
-    cur.execute("INSERT INTO 'server list' VALUES (Null,?,0,0)",ip)
+    cur.execute("INSERT INTO server_list (name,ip,players,in_game) VALUES (?,?,0,0)",(str(name),str(ip)))
     results = cur.fetchall()
+    con.commit()
     return results
+
+def remServer(ip):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    ip = (ip,)  
+    cur.execute("DELETE FROM server_list WHERE ip = ?",ip)
+    results = cur.fetchall()
+    con.commit()
+    return results
+
 
 def updatePlayers(playerNum):
     con = sql.connect("main.db")
     cur = con.cursor()
     ip = (ip,)  
-    cur.execute("INSERT INTO 'server list' VALUES (Null,?,0,0)",ip)
+    cur.execute("INSERT INTO 'server_list' VALUES (Null,?,0,0)",ip)
     #cur.fetchall()
 
 
 def updateGameState():
     con = sql.connect("main.db")
     cur = con.cursor()
-    cur.execute("INSERT INTO 'server list' VALUES (Null,Null,Null,1)")
+    cur.execute("INSERT INTO 'server_list' VALUES (Null,Null,Null,1)")
     #cur.fetchall()
 
 def readStats(user):

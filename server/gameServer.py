@@ -12,6 +12,18 @@ class gameServer:
         port = 6060         # port forwarded this on servers router
         self.gameSock.bind((host, port))
         self.connections = []
+        self.publicise()
+
+    def publicise(self):
+        tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        host = "86.134.82.174"
+        port = 5050
+        msg = str(input("Server Name: "))
+        msg = (0, msg)
+        message = pickle.dumps(msg)
+        tempSock.connect((host, port))
+        tempSock.send(message)
+
     def lobby(self,maxPlayers):
         votes = 0
         counter = 0
@@ -46,7 +58,25 @@ class gameServer:
         table = mainloop.Table(self.playerList, self.gameSock)
         while True:
             table.playHand()
+            if len(table.newhand.players) <= 1:
+                tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                host = "86.134.82.174"
+                port = 5050
+                msg = (0, "end")
+                message = pickle.dumps(msg)
+                tempSock.connect((host, port))
+                tempSock.send(message)
+            else:
+                tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                host = "86.134.82.174"
+                port = 5050
+                msg = (0, "end")
+                message = pickle.dumps(msg)
+                tempSock.connect((host, port))
+                tempSock.send(message)
+
 
 if __name__ == "__main__":
     gs = gameServer()
-    gs.lobby(2)
+    maxplayers = int(input("How many players: "))
+    gs.lobby(maxPlayers)
