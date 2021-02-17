@@ -108,6 +108,18 @@ class Window(QWidget):
         handrow.addWidget(self.chipLabel)
         handrow.addStretch(3)
 
+        self.menuBrowserButton = QPushButton("Server List")
+        self.menuBrowserButton.clicked.connect(self.serverBrowser)
+        browserLayout = QVBoxLayout()
+        self.browserTable = QTableWidget()
+        self.browserButton = QPushButton("connect")
+        self.browserButton.clicked.connect(self.startGame)
+        browserLayout.addWidget(self.browserTable)
+        browserLayout.addWidget(self.browserButton)
+        self.browserFrame = QFrame()
+        self.browserFrame.setLayout(browserLayout)
+        self.browserFrame.hide()
+
         self.radioGroup = QButtonGroup()
         self.radioGroup.addButton(self.selectionCRdo)
         self.radioGroup.addButton(self.selectionRRdo)
@@ -134,6 +146,7 @@ class Window(QWidget):
         self.menuLayout.addWidget(self.startButton)
         self.menuLayout.addWidget(self.optionsButton)
         self.menuLayout.addWidget(self.quitButton)
+        self.menuLayout.addWidget(self.menuBrowserButton)
 
         self.gamelayout.addWidget(self.printerLabel)
         self.gamelayout.addWidget(self.opponentBox)
@@ -154,6 +167,7 @@ class Window(QWidget):
         self.gameFrame = QFrame()
         self.gameFrame.setLayout(self.gamelayout)
         self.windowLayout.addWidget(self.gameFrame)
+        self.windowLayout.addWidget(self.browserFrame)
         self.gameFrame.hide()
 
         # layout.addLayout(self.inputLayout)
@@ -168,12 +182,36 @@ class Window(QWidget):
     def exitGame(self):
         sys.exit()
 
-    def startListener(self):
+
+    def serverBrowser(self):
+        self.browserFrame.show()
+        self.menuFrame.hide()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host = "86.157.43.62"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        port = 5050 # port forward this on my router
+        s.connect((host, port))
+        request = "sList"
+        request = request.encode("ascii")
+        s.send(request)
+        msg = s.recv(1024)
+        msg = pickle.loads(msg)
+        try:
+            self.browserTable.setRowCount(len(msg))
+            self.browserTable.setColumnCount(len(msg[0]))
+        except:
+            self.browserFrame.hide()
+            self.menuFrame.show()
+
+    def startListener(self,ip):
         # show all of the stuff
         self.createStats()
         self.gameFrame.show()
-        self.thread.listen()
+        self.thread.listen(ip)
 
+    def startGame(self):
+        myRow = self.browserTable.currentRow()
+        ip = myRow[2]
+        self.startListener(ip)
     def createStats(self):
         self.stats = {
             "chipsInvested":0,  # amount of chips invested in any round including blinds
@@ -346,7 +384,8 @@ class Worker(QThread):
         self.exiting = True
         self.wait()
 
-    def listen(self):
+    def listen(self,ip):
+        self.ip = ip
         self.start()
 
     def getInput(self):
@@ -392,12 +431,8 @@ class Worker(QThread):
         print("rerun")
         self.printTime.emit()
         self.gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        """for row in serverList:
-            if row[0]  == serverNum:
-                host = row[2]
-                break"""
         port = 6060         # port forwarded this on servers router
-        self.gamesocket.connect(("81.135.23.12", port))
+        self.gamesocket.connect((self.ip, port))
         playerInfo = [window.username, "playerNum"]  # use actual info here
         msg = pickle.dumps(playerInfo)
         self.gamesocket.send(msg)
@@ -459,8 +494,8 @@ class Worker(QThread):
                 print(erroragain, "error again from 340")
                 try:
                     if data[0] == "ended":
-                        response = input("play again Y/N")
-                        if response == "Y":
+                        response = QMessageBox.question(self, 'Again', 'Do you want to play again', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                        if response == QMessageBox.Yes:
                             response = True
                         else:
                             response = False
