@@ -16,7 +16,7 @@ class gameServer:
 
     def publicise(self):
         tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host = "86.134.82.174"
+        host = "86.160.32.246"
         port = 5050
         msg = str(input("Server Name: "))
         msg = (0, msg)
@@ -66,6 +66,7 @@ class gameServer:
                 message = pickle.dumps(msg)
                 tempSock.connect((host, port))
                 tempSock.send(message)
+                main()
             else:
                 tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 host = "86.134.82.174"
@@ -76,7 +77,10 @@ class gameServer:
                 tempSock.send(message)
 
 
-if __name__ == "__main__":
+def main():
     gs = gameServer()
     maxplayers = int(input("How many players: "))
-    gs.lobby(maxPlayers)
+    gs.lobby(maxplayers)
+
+if __name__ == "__main__":
+    main()

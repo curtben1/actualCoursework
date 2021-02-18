@@ -212,9 +212,9 @@ class Hand:                              # class created for each hand of the ga
             data = pickle.loads(data)
             print("recieved")
         else:
-            message = pickle.dumps(message)
-            self.players[i].socket.send(message)
-            print("sent")
+            message1 = pickle.dumps(message)
+            self.players[i].socket.send(message1)
+            print("sent", message)
             data = self.players[i].socket.recv(1024)
             data = pickle.loads(data)
             print("recieved")

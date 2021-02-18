@@ -3,7 +3,7 @@ todo - hook up database to functioning playgame lobby
 
 test the lobby voting 
 
-
+vm pass = 1
 
 """
 

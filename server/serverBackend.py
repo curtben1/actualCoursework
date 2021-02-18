@@ -31,46 +31,46 @@ class client(Thread):
         # self.run()
 
     def run(self):
-        while 1:
-            print("looping")
-            inp = self.sock.recv(1024)
-            inp = pickle.loads(inp)
-            print("the input is", inp)
-            if inp[0] == 0:
-                print("server Com")
-                # server communications likely new server created or terminated
-                if isinstance(inp[1], str)
-                    if inp[1] != "end":
-                        sql.addServer(inp[1],self.addr[0])
-                        print(sql.readsList())
-                    else:
-                        sqk.remServer(self.addr[0])
+    
+        print("looping")
+        inp = self.sock.recv(1024)
+        inp = pickle.loads(inp)
+        print("the input is", inp)
+        if inp[0] == 0:
+            print("server Com")
+            # server communications likely new server created or terminated
+            if isinstance(inp[1], str):
+                if inp[1] != "end":
+                    sql.addServer(inp[1],self.addr[0])
+                    print(sql.readsList())
+                else:
+                    sqk.remServer(self.addr[0])
 
-            elif inp[0] == 1:
-                if inp[1]  == "sList":
-                    reply = sql.readsList()
-                    reply = pickle.dumps(reply)
-                elif inp[1]  == "stats":
-                    reply = sql.readStats()
-                    reply = pickle.dumps(reply)
-                    
+        elif inp[0] == 1:
+            if inp[1]  == "sList":
+                reply = sql.readsList()
+                reply = pickle.dumps(reply)
+            elif inp[1]  == "stats":
+                reply = sql.readStats()
+                reply = pickle.dumps(reply)
+                
 
-                elif inp != "":
-                    ipaddr = str(self.addr[0])
-                    sql.writeHost(inp,ipaddr)
-                    reply = "connected"
-                    reply = reply.encode("ascii")
-            elif inp[0] == 2:
-                pass # password/account realted request, confirm access, create account etc
-            elif inp[0] == 3:
-                pass # stats/balance updates
-            try:
-                self.sock.send(reply)        # sends back a confirmation message
-                print("sent")
-                break
-            except:
-                print("not sent")
-                pass
+            elif inp != "":
+                ipaddr = str(self.addr[0])
+                sql.writeHost(inp,ipaddr)
+                reply = "connected"
+                reply = reply.encode("ascii")
+        elif inp[0] == 2:
+            pass # password/account realted request, confirm access, create account etc
+        elif inp[0] == 3:
+            pass # stats/balance updates
+        try:
+            self.sock.send(reply)        # sends back a confirmation message
+            print("sent")
+            
+        except:
+            print("not sent")
+            pass
             
 serversocket.listen(5)
 print ('server started and listening')
