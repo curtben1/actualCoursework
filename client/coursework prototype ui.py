@@ -268,7 +268,7 @@ class Window(QWidget):
         self.oppenentLayout = QHBoxLayout()
         j = 0
         for i in range (len(self.players)):
-            if self.players[i]["username"] != self.username:
+            if self.players[i]["username"] != "window.username":
                 tempGrp = QGroupBox(self.players[i]["username"])
                 tempLbl = QLabel("chips: 0")
                 tempActn = QLabel("Yet to Act")
@@ -486,6 +486,7 @@ class Worker(QThread):
                         pot = int(data[1])
                         pickled = pickle.dumps("None")
                         self.gamesocket.send(pickled)
+                        print("sent 489")
                         if self.blind == 0:
                             self.blind = (2/3)*pot
                         window.potLabel.setText(str(pot))
@@ -500,6 +501,7 @@ class Worker(QThread):
                         self.inputTake.emit()
                         print("input taken")
                 elif data[0] == '6':
+
                     self.getRaise()
                 else:
                     print("trying to just print this maybe shouldnt be?", data[1])
@@ -544,12 +546,14 @@ class Worker(QThread):
                     window.potLabel.setText(str(pot))
                     var = pickle.dumps("None")
                     self.gamesocket.send(var)
+                    print("Sent 548")
 
                 except Exception as error1:
                     traceback.print_exc()
                     print(error1, "if the following is a dict with contributed as a field it is wrong and a secondary error os being caught, from 365 the data is", data)
                     window.printvalue = data
                     self.printTime.emit()
+                    
                     if data == "game over":
                         return "Game Over"
 
