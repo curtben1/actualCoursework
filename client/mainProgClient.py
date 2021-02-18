@@ -41,7 +41,7 @@ def playGame(serverNum, serverList):
             host = row[2]
             break"""
     port = 6060         # port forwarded this on servers router
-    gamesocket.connect(("81.135.23.12", port))
+    gamesocket.connect(("86.160.32.246", port))
     playerInfo = ["command line", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)

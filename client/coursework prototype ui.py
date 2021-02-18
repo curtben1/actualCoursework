@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
+import traceback
 import socket
 import pickle
 from sys import getsizeof
@@ -21,7 +21,7 @@ class Window(QWidget):
         self.setGeometry(100, 100, 1280, 720)
         self.chips = 0
         self.players = None
-        self.username = "laptop"  # get from accounts system
+        self.username = "tool"  # get from accounts system
         self.potSize = 0
         
         
@@ -201,7 +201,7 @@ class Window(QWidget):
         
         self.browserTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.browserTable.setRowCount(len(msg))
-        self.browserTable.setColumnCount(len(msg))
+        self.browserTable.setColumnCount(len(msg[0]))
         try:
             for row in range (len(msg)):
                 for collumn in  range (len(msg[row])):
@@ -267,9 +267,9 @@ class Window(QWidget):
                             "boxLayout": tempBoxLayout})
         self.oppenentLayout = QHBoxLayout()
         j = 0
-        for player in self.players:
-            if player["username"] != self.username:
-                tempGrp = QGroupBox(player["username"])
+        for i in range (len(self.players)):
+            if self.players[i]["username"] != self.username:
+                tempGrp = QGroupBox(self.players[i]["username"])
                 tempLbl = QLabel("chips: 0")
                 tempActn = QLabel("Yet to Act")
                 tempCard1 = QLabel()
@@ -277,8 +277,7 @@ class Window(QWidget):
                 tempCard1.setPixmap(self.back2)
                 tempCard2.setPixmap(self.back2)
 
-                player["widgets"] = {"group": tempGrp, "card1": tempCard1,
-                                     "card2": tempCard2, "chips": 0, "chipLabel": tempLbl, "action": tempActn}
+                self.players[i]["widgets"] = {"group": tempGrp, "card1": tempCard1,"card2": tempCard2, "chips": 0, "chipLabel": tempLbl, "action": tempActn}
                 layouts[j]["boxLayout"].addWidget(tempActn)
                 layouts[j]["cardLayout"].addWidget(tempCard1)
                 layouts[j]["cardLayout"].addWidget(tempCard2)
@@ -448,12 +447,12 @@ class Worker(QThread):
         self.gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         port = 6060         # port forwarded this on servers router
         self.gamesocket.connect((self.ip, port))
-        playerInfo = [window.username, "playerNum"]  # use actual info here
+        playerInfo = ["window.username", "playerNum2"]  # use actual info here
         msg = pickle.dumps(playerInfo)
         self.gamesocket.send(msg)
         while True:
 
-            data2 = self.gamesocket.recv(1024)
+            data2 = self.gamesocket.recv(4096)
             if data2:
                 data2 = pickle.loads(data2)
                 if isinstance(data2, list):
@@ -469,13 +468,14 @@ class Worker(QThread):
                     print("game starting")
                     break
         window.players = data2
+
         self.drawOps.emit()
         self.gameLoop()
 
     def gameLoop(self):
         self.blind = 0
         while True:
-            data = self.gamesocket.recv(1024)
+            data = self.gamesocket.recv(4096)
             # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
             data = pickle.loads(data)
             print(data)
@@ -494,8 +494,7 @@ class Worker(QThread):
                         if len(data) == 3:
                             print("length 2")
                             self.currentBet = int(data[2])
-                            window.printvalue = "the current bet to call is " + \
-                                str(data[2])
+                            window.printvalue = "the current bet to call is " + str(data[2])
                             self.printTime.emit()
                             print("emitted")
                         self.inputTake.emit()
@@ -503,43 +502,43 @@ class Worker(QThread):
                 elif data[0] == '6':
                     self.getRaise()
                 else:
+                    print("trying to just print this maybe shouldnt be?", data[1])
                     window.printvalue = data[1]
                     self.printTime.emit()
             except Exception as erroragain:
-                print(erroragain, "error again from 340")
+                print(erroragain, "error again from 340, not a  string")
                 try:
-                    if data[0] == "ended":
+                    """if data[0] == "ended":
                         response = QMessageBox.question(self, 'Again', 'Do you want to play again', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                         if response == QMessageBox.Yes:
                             response = True
                         else:
                             response = False
                         response = pickle.dumps(response)
-                        self.gamesocket.send(response)
+                        self.gamesocket.send(response)"""
                     pot = window.potSize
                     for i in range(len(data)):
+                        print(window.players, "this is window.players should be indexable 0,1")
                         player = data[i]
                         self.investedRound = player["contributed"]
+                        print("got to line 523, is a dict and is being used")
                         pot += player["contributed"]
                         if i != window.myPos:
                             window.players[i]["widgets"]["chips"] = player["chips"]
                             window.players[i]["widgets"]["chipLabel"].setText(
                                 "chips: " + str(player["chips"]))
                             if player["stillIn"] == False:
-                                window.players[i]["widgets"]["card1"].setPixmap(
-                                    window.folded)
-                                window.players[i]["widgets"]["card2"].setPixmap(
-                                    window.folded)
-                                window.players[i]["widgets"]["action"].setText(
-                                    "Folded")
+                                window.players[i]["widgets"]["card1"].setPixmap(window.folded)
+                                window.players[i]["widgets"]["card2"].setPixmap(window.folded)
+                                window.players[i]["widgets"]["action"].setText("Folded")
                             else:
                                 action = player["action"]
                                 if action == 'C':
-                                    window.players[i]["widgets"]["action"].setText(
-                                        "Called/Checked")
+                                    window.players[i]["widgets"]["action"].setText("Called/Checked")
                                 elif action == 'R':
-                                    window.players[i]["widgets"]["action"].setText(
-                                        "Raised")
+                                    window.players[i]["widgets"]["action"].setText( "Raised")
+                                else:
+                                    print("something has gone really wrong,", action, "should be C or R")
                         else:
                             window.chipLabel.setText(str(player["chips"]))
                     window.potLabel.setText(str(pot))
@@ -547,7 +546,8 @@ class Worker(QThread):
                     self.gamesocket.send(var)
 
                 except Exception as error1:
-                    print(error1, "from 365 the data is", data)
+                    traceback.print_exc()
+                    print(error1, "if the following is a dict with contributed as a field it is wrong and a secondary error os being caught, from 365 the data is", data)
                     window.printvalue = data
                     self.printTime.emit()
                     if data == "game over":
