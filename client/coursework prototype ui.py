@@ -186,32 +186,47 @@ class Window(QWidget):
     def serverBrowser(self):
         self.browserFrame.show()
         self.menuFrame.hide()
+        self.getServers()
+
+    def getServers(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host = "86.157.43.62"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        host = "86.160.32.246"   # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
-        request = "sList"
-        request = request.encode("ascii")
+        request = (1,"sList" )
+        request = pickle.dumps(request)
         s.send(request)
         msg = s.recv(1024)
         msg = pickle.loads(msg)
+        
+        self.browserTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.browserTable.setRowCount(len(msg))
+        self.browserTable.setColumnCount(len(msg))
         try:
-            self.browserTable.setRowCount(len(msg))
-            self.browserTable.setColumnCount(len(msg[0]))
+            for row in range (len(msg)):
+                for collumn in  range (len(msg[row])):
+                    self.browserTable.setItem(row,collumn,QTableWidgetItem(msg[row][collumn]))
+            self.serverList = msg
         except:
             self.browserFrame.hide()
             self.menuFrame.show()
+            
 
     def startListener(self,ip):
         # show all of the stuff
         self.createStats()
         self.gameFrame.show()
+        self.menuFrame.hide()
         self.thread.listen(ip)
 
     def startGame(self):
         myRow = self.browserTable.currentRow()
-        ip = myRow[2]
+        myRow = self.serverList[myRow]
+        print(myRow)
+        ip = myRow[1]
+        self.browserFrame.hide()
         self.startListener(ip)
+
     def createStats(self):
         self.stats = {
             "chipsInvested":0,  # amount of chips invested in any round including blinds
