@@ -214,7 +214,7 @@ class Window(QWidget):
 
     def startListener(self,ip):
         # show all of the stuff
-        self.createStats()
+        #self.createStats()
         self.gameFrame.show()
         self.menuFrame.hide()
         self.thread.listen(ip)
@@ -302,11 +302,11 @@ class Window(QWidget):
     def returnRaiseValue(self):
         retVal = pickle.dumps(self.raiseTxt.value())
         self.raiseGroup.hide()
-        self.stats["raises"] += 1
+        """self.stats["raises"] += 1
         self.stats["raisedRel"].append(int(retval)/self.thread.blind)
         if self.gameStage == '2':
             self.stats["preFlopVol"] +=1   # if you call raise or raise re raise this will count twice, add variable to check if this has been incremented
-            self.stats["preFlopAmount"].append(retVal)
+            self.stats["preFlopAmount"].append(retVal)"""
         self.thread.gamesocket.send(retVal)
 
     def createPixmap(self, cardNum=None):
@@ -338,11 +338,11 @@ class Window(QWidget):
                     if chipinfo[1] == 0:
                         print("small blind")
                         self.chips = int(chipinfo[0] - ((1/3)*int(window.printvalue[2])))
-                        self.stats["invested"] = ((1/3)*int(window.printvalue[2]))
+                        #self.stats["invested"] = ((1/3)*int(window.printvalue[2]))
                     elif chipinfo[1] == 1:
                         print("big blind")
                         self.chips = int(chipinfo[0] - ((2/3)*int(window.printvalue[2])))
-                        self.stats["invested"] = ((2/3)*int(window.printvalue[2]))
+                        #self.stats["invested"] = ((2/3)*int(window.printvalue[2]))
                     else:
                         self.chips = int(chipinfo[0])
                     self.chipLabel.setText(str(self.chips))
@@ -410,7 +410,7 @@ class Worker(QThread):
                 window.chips = 0
             window.chipLabel.setText(str(window.chips))
             val = 'C'
-            if self.currentBet !=0:
+            """if self.currentBet !=0:
                 window.stats["calls"] +=1
                 window.stats["chipsInvested"] += self.currentBet
                 if window.gameStage == '2':     # chacks if preflop
@@ -422,15 +422,15 @@ class Worker(QThread):
 
             else:
                 window.stats["checks"] += 1
-                window.stats["preFlopAmount"].append(self.currentBet)
+                window.stats["preFlopAmount"].append(self.currentBet)"""
         elif window.selectionRRdo.isChecked():
             val = 'R'
             # stats updating will be done once raise amount is known which happens later
         elif window.selectionFRdo.isChecked():
             val = 'F'
-            if window.gameStage == '2':
+            """if window.gameStage == '2':
                 window.stats["preFlopAmount"].append(0)
-                window.stats["invWhenFolded"].append(self.investedRound)
+                window.stats["invWhenFolded"].append(self.investedRound)"""
 
 
         val = pickle.dumps(val)
@@ -478,7 +478,7 @@ class Worker(QThread):
             data = self.gamesocket.recv(1024)
             # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
             data = pickle.loads(data)
-
+            print(data)
             try:
                 data = data.split('#')
                 if data[0] == '1':
@@ -547,7 +547,7 @@ class Worker(QThread):
                     self.gamesocket.send(var)
 
                 except Exception as error1:
-                    print(error1, "from 365")
+                    print(error1, "from 365 the data is", data)
                     window.printvalue = data
                     self.printTime.emit()
                     if data == "game over":
