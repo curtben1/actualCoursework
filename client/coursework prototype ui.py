@@ -133,6 +133,7 @@ class Window(QWidget):
 
         self.thread.printTime.connect(self.printer)
         self.thread.drawOps.connect(self.drawOpponents)
+        self.thread.ended.connect(self.endDialogue)
         self.thread.inputTake.connect(self.takeInput)
         self.raiseConfirm.clicked.connect(self.returnRaiseValue)
         self.raiseTxt.editingFinished.connect(self.updateRaiseSlider)
@@ -182,6 +183,14 @@ class Window(QWidget):
     def exitGame(self):
         sys.exit()
 
+    def endDialogue(self):
+        response = QMessageBox.question(self, 'Again', 'Do you want to play again', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if response == QMessageBox.Yes:
+            response = True
+        else:
+            response = False
+        response = pickle.dumps(response)
+        self.thread.gamesocket.send(response)
 
     def serverBrowser(self):
         self.browserFrame.show()
@@ -214,7 +223,7 @@ class Window(QWidget):
 
     def startListener(self,ip):
         # show all of the stuff
-        #self.createStats()
+        self.createStats()
         self.gameFrame.show()
         self.menuFrame.hide()
         self.thread.listen(ip)
@@ -299,13 +308,14 @@ class Window(QWidget):
         self.raiseTxt.setValue(int(self.raiseSlider.value()))
 
     def returnRaiseValue(self):
-        retVal = pickle.dumps(self.raiseTxt.value())
+        retVal = self.raiseTxt.value()
         self.raiseGroup.hide()
-        """self.stats["raises"] += 1
-        self.stats["raisedRel"].append(int(retval)/self.thread.blind)
+        self.stats["raises"] += 1
+        self.stats["raisedRel"].append(int(retVal)/self.thread.blind)
         if self.gameStage == '2':
             self.stats["preFlopVol"] +=1   # if you call raise or raise re raise this will count twice, add variable to check if this has been incremented
-            self.stats["preFlopAmount"].append(retVal)"""
+            self.stats["preFlopAmount"].append(retVal)
+        retVal = pickle.dumps(self.raiseTxt.value())
         self.thread.gamesocket.send(retVal)
 
     def createPixmap(self, cardNum=None):
@@ -387,6 +397,7 @@ class Worker(QThread):
     inputTake = pyqtSignal()
     printTime = pyqtSignal()
     drawOps = pyqtSignal()
+    ended = pyqtSignal()
 
     def __init__(self, window, parent=None):
         QThread.__init__(self, parent)
@@ -409,7 +420,7 @@ class Worker(QThread):
                 window.chips = 0
             window.chipLabel.setText(str(window.chips))
             val = 'C'
-            """if self.currentBet !=0:
+            if self.currentBet !=0:
                 window.stats["calls"] +=1
                 window.stats["chipsInvested"] += self.currentBet
                 if window.gameStage == '2':     # chacks if preflop
@@ -421,15 +432,15 @@ class Worker(QThread):
 
             else:
                 window.stats["checks"] += 1
-                window.stats["preFlopAmount"].append(self.currentBet)"""
+                window.stats["preFlopAmount"].append(self.currentBet)
         elif window.selectionRRdo.isChecked():
             val = 'R'
             # stats updating will be done once raise amount is known which happens later
         elif window.selectionFRdo.isChecked():
             val = 'F'
-            """if window.gameStage == '2':
+            if window.gameStage == '2':
                 window.stats["preFlopAmount"].append(0)
-                window.stats["invWhenFolded"].append(self.investedRound)"""
+                window.stats["invWhenFolded"].append(self.investedRound)
 
 
         val = pickle.dumps(val)
@@ -488,7 +499,8 @@ class Worker(QThread):
                         self.gamesocket.send(pickled)
                         print("sent 489")
                         if self.blind == 0:
-                            self.blind = (2/3)*pot
+                            self.blind = pot
+                            print("the blind is", self.blind)
                         window.potLabel.setText(str(pot))
                     except Exception as error:
                         print(error, "from 349")
@@ -510,43 +522,38 @@ class Worker(QThread):
             except Exception as erroragain:
                 print(erroragain, "error again from 340, not a  string")
                 try:
-                    """if data[0] == "ended":
-                        response = QMessageBox.question(self, 'Again', 'Do you want to play again', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                        if response == QMessageBox.Yes:
-                            response = True
-                        else:
-                            response = False
-                        response = pickle.dumps(response)
-                        self.gamesocket.send(response)"""
-                    pot = window.potSize
-                    for i in range(len(data)):
-                        print(window.players, "this is window.players should be indexable 0,1")
-                        player = data[i]
-                        self.investedRound = player["contributed"]
-                        print("got to line 523, is a dict and is being used")
-                        pot += player["contributed"]
-                        if i != window.myPos:
-                            window.players[i]["widgets"]["chips"] = player["chips"]
-                            window.players[i]["widgets"]["chipLabel"].setText(
-                                "chips: " + str(player["chips"]))
-                            if player["stillIn"] == False:
-                                window.players[i]["widgets"]["card1"].setPixmap(window.folded)
-                                window.players[i]["widgets"]["card2"].setPixmap(window.folded)
-                                window.players[i]["widgets"]["action"].setText("Folded")
-                            else:
-                                action = player["action"]
-                                if action == 'C':
-                                    window.players[i]["widgets"]["action"].setText("Called/Checked")
-                                elif action == 'R':
-                                    window.players[i]["widgets"]["action"].setText( "Raised")
+                    if data[0] == "ended":
+                        self.ended.emit()
+                    else:
+                        pot = window.potSize
+                        for i in range(len(data)):
+                            print(window.players, "this is window.players should be indexable 0,1")
+                            player = data[i]
+                            self.investedRound = player["contributed"]
+                            print("got to line 523, is a dict and is being used")
+                            pot += player["contributed"]
+                            if i != window.myPos:
+                                window.players[i]["widgets"]["chips"] = player["chips"]
+                                window.players[i]["widgets"]["chipLabel"].setText(
+                                    "chips: " + str(player["chips"]))
+                                if player["stillIn"] == False:
+                                    window.players[i]["widgets"]["card1"].setPixmap(window.folded)
+                                    window.players[i]["widgets"]["card2"].setPixmap(window.folded)
+                                    window.players[i]["widgets"]["action"].setText("Folded")
                                 else:
-                                    print("something has gone really wrong,", action, "should be C or R")
-                        else:
-                            window.chipLabel.setText(str(player["chips"]))
-                    window.potLabel.setText(str(pot))
-                    var = pickle.dumps("None")
-                    self.gamesocket.send(var)
-                    print("Sent 548")
+                                    action = player["action"]
+                                    if action == 'C':
+                                        window.players[i]["widgets"]["action"].setText("Called/Checked")
+                                    elif action == 'R':
+                                        window.players[i]["widgets"]["action"].setText( "Raised")
+                                    else:
+                                        print("something may have gone really wrong,", action, "should be C or R(unless first round and not acted)")
+                            else:
+                                window.chipLabel.setText(str(player["chips"]))
+                        window.potLabel.setText(str(pot))
+                        var = pickle.dumps("None")
+                        self.gamesocket.send(var)
+                        print("Sent 548")
 
                 except Exception as error1:
                     traceback.print_exc()
@@ -561,8 +568,9 @@ class Worker(QThread):
         print("success")
 
     def getRaise(self):
-        window.raiseTxt.setRange(self.blind, window.chips)
-        window.raiseSlider.setRange(self.blind, window.chips)
+        print("range is:", self.blind, window.chips)
+        window.raiseTxt.setRange(self.blind, int(window.chipLabel.text()))
+        window.raiseSlider.setRange(self.blind, int(window.chipLabel.text()))
         window.raiseGroup.show()
 
 

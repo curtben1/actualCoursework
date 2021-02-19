@@ -46,7 +46,7 @@ class gameServer:
                 pickleList = pickle.dumps(self.playerListCV)
 
                 #for indisock in self.connections:
-                client.send(pickleList)
+                
                 counter +=1 # for test
                 print(counter)
                 if counter == 2:
@@ -54,7 +54,8 @@ class gameServer:
             else:
                 votes += 1
                 print(votes)
-
+        for indisock in self.connections:
+            indisock.send(pickleList)
         table = mainloop.Table(self.playerList, self.gameSock)
         while True:
             table.playHand()

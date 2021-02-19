@@ -173,8 +173,8 @@ class Hand:                              # class created for each hand of the ga
         for player in self.players:
             player.card2 = (self.deck.pop(len(self.deck)-1)) 
         
-        for ii in range(0, len(self.players)):
-            self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind,[self.players[ii].chips,ii]])
+        """for ii in range(0, len(self.players)):
+            self.sendText(ii,['2',[self.players[ii].card1,self.players[ii].card2],self.bBlind+self.sBlind,[self.players[ii].chips,ii]])"""
         
         for e in range(0,5):
             self.centre.append(self.deck.pop(len(self.deck)-1))
@@ -268,6 +268,7 @@ class Hand:                              # class created for each hand of the ga
             while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and self.remaining>1:
                 for iii in range(len(self.players)):
                     time.sleep(0.1)
+                    self.recvText(iii,str(self.bBlind))
                     self.recvText(iii,self.createDict())   # recvText() is better for synchronisation reasons, without client hasnt fully processed this therefor blocking next message
                     
                 print("progressed")
