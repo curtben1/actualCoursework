@@ -59,7 +59,7 @@ class gameServer:
         table = mainloop.Table(self.playerList, self.gameSock)
         while True:
             table.playHand()
-            if len(table.newhand.players) <= 1:
+            """if len(table.newhand.players) <= 1:
                 tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 host = "86.134.82.174"
                 port = 5050
@@ -76,7 +76,7 @@ class gameServer:
                 message = pickle.dumps(msg)
                 tempSock.connect((host, port))
                 tempSock.send(message)
-
+"""
 
 def main():
     gs = gameServer()

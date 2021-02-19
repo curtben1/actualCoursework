@@ -347,11 +347,11 @@ class Window(QWidget):
                     if chipinfo[1] == 0:
                         print("small blind")
                         self.chips = int(chipinfo[0] - ((1/3)*int(window.printvalue[2])))
-                        #self.stats["invested"] = ((1/3)*int(window.printvalue[2]))
+                        self.stats["invested"] = ((1/3)*int(window.printvalue[2]))
                     elif chipinfo[1] == 1:
                         print("big blind")
                         self.chips = int(chipinfo[0] - ((2/3)*int(window.printvalue[2])))
-                        #self.stats["invested"] = ((2/3)*int(window.printvalue[2]))
+                        self.stats["invested"] = ((2/3)*int(window.printvalue[2]))
                     else:
                         self.chips = int(chipinfo[0])
                     self.chipLabel.setText(str(self.chips))
@@ -425,8 +425,8 @@ class Worker(QThread):
                 window.stats["chipsInvested"] += self.currentBet
                 if window.gameStage == '2':     # chacks if preflop
                     window.stats["preFlopVol"] += 1
-                    if len(window.stats["preFlopAmount"]) == window.stats["handsPlayed"]:
-                        window.stats["preFlopAmount"][-1] += self.currentBet
+                    if len(window.stats["preFlopAmount"]) > window.stats["handsPlayed"]:
+                        window.stats["preFlopAmount"][len(window.stats["preFlopAmount"])-1] += self.currentBet
                     else:
                         window.stats["preFlopAmount"].append(self.currentBet)
 
@@ -523,6 +523,7 @@ class Worker(QThread):
                 print(erroragain, "error again from 340, not a  string")
                 try:
                     if data[0] == "ended":
+                        self.blind = 0
                         self.ended.emit()
                     else:
                         pot = window.potSize
@@ -569,6 +570,9 @@ class Worker(QThread):
 
     def getRaise(self):
         print("range is:", self.blind, window.chips)
+        if self.blind > int(window.chipLabel.text()):
+            window.raiseTxt.setRange(int(window.chipLabel.text()), int(window.chipLabel.text()))
+            window.raiseSlider.setRange(int(window.chipLabel.text()), int(window.chipLabel.text()))
         window.raiseTxt.setRange(self.blind, int(window.chipLabel.text()))
         window.raiseSlider.setRange(self.blind, int(window.chipLabel.text()))
         window.raiseGroup.show()
