@@ -207,7 +207,7 @@ class Hand:                              # class created for each hand of the ga
             message = str(tag)+'#'+message
             message = pickle.dumps(message)
             self.players[i].socket.send(message)
-            print("sent")
+            print("sent",pickle.loads(message))
             data = self.players[i].socket.recv(1024)
             data = pickle.loads(data)
             print("recieved")
@@ -267,8 +267,10 @@ class Hand:                              # class created for each hand of the ga
 
             while i < len(self.players) and ((i<raiser and counter == raised+1) or raised  == counter) and self.remaining>1:
                 for iii in range(len(self.players)):
-                    time.sleep(0.1)
-                    self.recvText(iii,str(self.bBlind))
+                    if self.round == 1:
+                        time.sleep(0.3)
+                        self.recvText(iii,str(self.bBlind))
+                    #time.sleep(0.3)
                     self.recvText(iii,self.createDict())   # recvText() is better for synchronisation reasons, without client hasnt fully processed this therefor blocking next message
                     
                 print("progressed")

@@ -489,7 +489,7 @@ class Worker(QThread):
             data = self.gamesocket.recv(4096)
             # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
             data = pickle.loads(data)
-            print(data)
+            print("LATEST TRANSMISSION > ",data)
             try:
                 data = data.split('#')
                 if data[0] == '1':
