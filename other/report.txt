@@ -1,0 +1,1 @@
+fisrt to join only gets their username in this package due to this being sent twice, should only send when all have joined, should fix other sync issues
