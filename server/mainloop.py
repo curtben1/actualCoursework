@@ -416,8 +416,8 @@ class Hand:                              # class created for each hand of the ga
                                                 self.players[i].wonObjectives=[0,high]
                                                 print("high card")
                                             else:
-                                                self.players[i].wonObjectives=[1,pair]
-                                                print("pair")
+                                                self.players[i].wonObjectives=[1,pair]      # the first item is the ranking of the hand and the second
+                                                print("pair")                               # holds the specifics of the hands used for comparing
                                         else:
                                             self.players[i].wonObjectives=[2,twoPair]
                                             print("twopair")
@@ -456,7 +456,7 @@ class Hand:                              # class created for each hand of the ga
                     elif self.players[j].wonObjectives[0] > self.players[y].wonObjectives[0]:
                         beaten = beaten + 1
                         print(beaten)
-                    elif self.players[j].wonObjectives[0] == self.players[y].wonObjectives[0]:        #edgecases start here, good luck
+                    elif self.players[j].wonObjectives[0] == self.players[y].wonObjectives[0]:        #edgecases start here
                         print("no clear winner, calculating tie conditions")
                         same = True 
                         draw = False
