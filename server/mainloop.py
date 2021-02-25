@@ -279,13 +279,10 @@ class Hand:                              # class created for each hand of the ga
                 elif blinds == True and i == 1:
                     currentBet = currentBet-self.sBlind
                 if self.players[i].stillIn == True and self.players[i].chips>0:
-                    print(i)
-                    if currentBet != 0:
-                        output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
-                        action = self.recvText(i, output)                        # ask for over network and take answer                                                       
-                    else:
-                        output = "Do you want to \nCheck(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
-                        action = self.recvText(i, output)                     # ask for over network and take answer
+                    print(i)    # for debugging
+                    output = "Do you want to \nCall(C)\nRaise(R)\nFold(F)\n " + '#' + str(currentBet)
+                    action = self.recvText(i, output)                        # ask for over network and take answer                                                       
+
                     if action  == 'C':
                         if currentBet > self.players[i].chips-self.players[i].contributed:
                             output = "you can't afford to call so have been put all in"
