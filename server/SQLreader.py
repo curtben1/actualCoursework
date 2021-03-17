@@ -66,6 +66,32 @@ def readStats(user):
     results = cur.fetchall()
     return results
 
+def retSalt(userName):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    userName = (userName,)  
+    cur.execute("SELECT *FROM Accounts WHERE name = ?",userName)
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+def checkDetails(userName, hashed):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    details = (userName,hashed)  
+    cur.execute("SELECT *FROM Accounts WHERE name = ? and password = ?",details)
+    results = cur.fetchall()
+
+    return results
+
+def writeIP(userName,ip):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    details = (ip, True, userName)  
+    cur.execute("UPDATE Accounts SET ip = ?, loggedIn = ? WHERE name = ?",details)
+    results = cur.fetchall()
+
+    return results
 #=========================================================================================================================================================
 
 
