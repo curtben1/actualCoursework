@@ -31,7 +31,7 @@ class Window(QWidget):
         self.startButton = QPushButton(self.tr("&Start"))
         self.statsButton = QPushButton("statisitics")
         self.optionsButton = QPushButton("settings")
-        self.quitButton = QPushButton("Quit Game")
+        
 
         self.printerLabel = QLabel("placeholder")
         self.outputLabel = QLabel("placeholder")
@@ -126,6 +126,8 @@ class Window(QWidget):
         self.radioGroup.addButton(self.selectionFRdo)
         self.radioGroup.addButton(self.buttonConfirm)
 
+        self.quitButton = QPushButton("Quit Game")
+
         self.thread = Worker(self)
 
         self.thread.finished.connect(self.threadDied)
@@ -146,8 +148,8 @@ class Window(QWidget):
 
         self.menuLayout.addWidget(self.startButton)
         self.menuLayout.addWidget(self.optionsButton)
-        self.menuLayout.addWidget(self.quitButton)
         self.menuLayout.addWidget(self.menuBrowserButton)
+        self.menuLayout.addWidget(self.quitButton)
 
         self.gamelayout.addWidget(self.printerLabel)
         self.gamelayout.addWidget(self.opponentBox)
