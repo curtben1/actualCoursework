@@ -70,10 +70,29 @@ def retSalt(userName):
     con = sql.connect("main.db")
     cur = con.cursor()
     userName = (userName,)  
-    cur.execute("SELECT *FROM Accounts WHERE name = ?",userName)
+    cur.execute("SELECT 'salt' FROM Accounts WHERE name = ?",userName)
     results = cur.fetchall()
     con.commit()
     return results
+
+def checkPword(userName,hashed):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    userName = (userName,)  
+    cur.execute("SELECT * FROM Accounts WHERE name = ? and password = ?",(userName,hashed))
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+def writePword(name, passwrd, salt):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    cur.execute("INSERT INTO Accounts (name,password,salt) VALUES (?,?,?)",(name, passwrd, salt)
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+    
 
 def checkDetails(userName, hashed):
     con = sql.connect("main.db")

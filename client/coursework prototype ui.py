@@ -13,7 +13,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-
+from bcrypt import gensalt
 
 # note: can use window properties to pass variables betwwen
 
@@ -145,14 +145,17 @@ class Window(QWidget):
         self.pwordLabel = QLabel("Password")
         self.usernameLabel = QLabel("Username")
         self.enterButton = QPushButton("login")
+        self.signUpButton = QPushButton("Sign Up")
         self.loginLayout = QVBoxLayout()
         self.loginLayout.addWidget(self.usernameLabel)
         self.loginLayout.addWidget(self.usernameBox)
         self.loginLayout.addWidget(self.pwordLabel)
         self.loginLayout.addWidget(self.pwordBox)
         self.loginLayout.addWidget(self.enterButton)
+        self.loginLayout.addWidget(self.signUpButton)
         self.loginFrame.setLayout(self.loginLayout)
         self.enterButton.clicked.connect(self.processPword)
+        self.signUpButton.clicked.connect(self.signUp)
 
         self.thread.printTime.connect(self.printer)
         self.thread.drawOps.connect(self.drawOpponents)
@@ -256,7 +259,7 @@ class Window(QWidget):
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
-        message = bytes(pwordPlain, encoding = 'utf-8') 
+        message = pickle.dumps(pwordPlain) 
         
         with open("public_key.pem", "rb") as key_file:
             public_key = serialization.load_pem_public_key(
@@ -277,9 +280,47 @@ class Window(QWidget):
         s.send(request)
         msg = s.recv(1024)
         msg = pickle.loads(msg)
+        if msg:
+            self.loginFrame.hide()
+            self.menuFrame.show()
+            self.playerNumber = msg
+        
 
-        self.loginFrame.hide()
-        self.menuFrame.show()
+    def signUp(self):
+        usernamePlain = self.usernameBox.text()
+        pwordPlain = self.pwordBox.text()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host = "86.160.32.246"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        port = 5050 # port forward this on my router
+        s.connect((host, port))
+        #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
+        message = pickle.dumps(pwordPlain) 
+        
+        with open("public_key.pem", "rb") as key_file:
+            public_key = serialization.load_pem_public_key(
+                key_file.read(),
+                backend=default_backend()
+            )
+        encrypted = public_key.encrypt(
+            message,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        request = (1,"sign up",[usernamePlain, encrypted] )
+        request = pickle.dumps(request)
+        s.send(request)
+        msg = s.recv(1024)
+        msg = pickle.loads(msg)
+        if msg:
+            self.loginFrame.hide()
+            self.menuFrame.show()
+            self.playerNumber = msg
+        
+        
 
     def startListener(self,ip):
         # show all of the stuff

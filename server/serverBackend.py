@@ -12,6 +12,13 @@ import socket
 from threading import *
 import SQLreader as sql
 import pickle
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+
+
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = ""
@@ -57,6 +64,37 @@ class client(Thread):
             elif inp[1] == "logon":
                 username = inp[2][0]
                 pword = inp[2][1]
+                with open("private_key.pem", "rb") as key_file:
+                    private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
+                decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+                salt = sql.retSalt(username)
+                decrypted = pickle.loads(decrypted)
+                salted = decrypted +salt[0]
+                digest = hashes.Hash(hashes.SHA256())
+                digest.update(pickle.dumps(salted))
+                hashed = digest.finalize()
+                check = sql.checkPword(username, hashed)
+
+                if check:
+                    reply = pickle.dumps(check[0])
+                else:
+                    reply = pickle.dumps(False)
+
+            elif inp[1] == "sign up":
+                username = inp[2][0]
+                pword = inp[2][1]
+                with open("private_key.pem", "rb") as key_file:
+                    private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
+                decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+                salt = inp[2][2]
+                decrypted = pickle.loads(decrypted)
+                salted = decrypted +salt
+                digest = hashes.Hash(hashes.SHA256())
+                digest.update(pickle.dumps(salted))
+                hashed = digest.finalize()
+                
+                sql.writePword(username, hashed,salt)
+
                 
 
             elif inp != "":
