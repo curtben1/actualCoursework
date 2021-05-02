@@ -44,7 +44,7 @@ class client(Thread):
                     sql.addServer(inp[1],self.addr[0])
                     print(sql.readsList())
                 else:
-                    sqk.remServer(self.addr[0])
+                    sql.remServer(self.addr[0])
 
         elif inp[0] == 1:
             if inp[1]  == "sList":
@@ -53,6 +53,10 @@ class client(Thread):
             elif inp[1]  == "stats":
                 reply = sql.readStats()
                 reply = pickle.dumps(reply)
+
+            elif inp[1] == "logon":
+                username = inp[2][0]
+                pword = inp[2][1]
                 
 
             elif inp != "":
