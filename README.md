@@ -1,5 +1,7 @@
 # Coursework proposal/ outline
-This is a student project, please do not fork it I am only making it public for sharing with teachers and "stakeholders" not for collaboration or to facillitate plagerism
+This is a student project, please do not fork it I am only making it public for sharing with teachers and "stakeholders" not for collaboration or to facillitate plagerism. 
+
+Its a purely educational project so DO NOT use passwords you use for anything else with it as the database and public key will basically always be public here
 
 
 An online poker game where users have the opportunity to either host or join a public game using python's socket api, the game would be aimed at young people who are worried about predatory online gambling monetization and would provide a safe non profit environment for them to practice. 
