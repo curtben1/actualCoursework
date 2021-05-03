@@ -255,7 +255,7 @@ class Window(QWidget):
         usernamePlain = self.usernameBox.text()
         pwordPlain = self.pwordBox.text()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host = "86.160.32.246"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        host = "81.154.185.211"   # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
@@ -290,12 +290,13 @@ class Window(QWidget):
         usernamePlain = self.usernameBox.text()
         pwordPlain = self.pwordBox.text()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host = "86.160.32.246"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        host =  "81.154.185.211"    # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
         salt = str(urandom(16))
         message = pwordPlain + salt
+        print("pword+salt: ", message)
         message = pickle.dumps(message) 
         
         with open("public_key.pem", "rb") as key_file:
@@ -315,12 +316,10 @@ class Window(QWidget):
         request = (1,"sign up",[usernamePlain, encrypted,salt] )
         request = pickle.dumps(request)
         s.send(request)
-        msg = s.recv(1024)
-        msg = pickle.loads(msg)
-        if msg:
-            self.loginFrame.hide()
-            self.menuFrame.show()
-            self.playerNumber = msg
+        conf = s.recv(1024)
+        if conf:
+            self.processPword()
+            
         
         
 
