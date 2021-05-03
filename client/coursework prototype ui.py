@@ -13,7 +13,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from bcrypt import gensalt
+from os import urandom
 
 # note: can use window properties to pass variables betwwen
 
@@ -294,7 +294,7 @@ class Window(QWidget):
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
-        salt = gensalt()
+        salt = urandom(16)
         message = pwordPlain + str(salt)
         message = pickle.dumps(message) 
         
