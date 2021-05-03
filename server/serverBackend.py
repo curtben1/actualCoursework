@@ -67,10 +67,14 @@ class client(Thread):
                 with open("private_key.pem", "rb") as key_file:
                     private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-                salt = sql.retSalt(username)
                 decrypted = pickle.loads(decrypted)
-                salted = decrypted +salt[0]
-                digest = hashes.Hash(hashes.SHA256())
+                salt = sql.retSalt(username)
+                print(salt[0][0])
+                print("the decrypted password is",decrypted)
+                salted = decrypted + str(salt[0][0])
+                
+                
+                digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
                 digest.update(pickle.dumps(salted))
                 hashed = digest.finalize()
                 check = sql.checkPword(username, hashed)
@@ -83,17 +87,16 @@ class client(Thread):
             elif inp[1] == "sign up":
                 username = inp[2][0]
                 pword = inp[2][1]
+                salt = inp[2][2]
                 with open("private_key.pem", "rb") as key_file:
                     private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-                salt = inp[2][2]
                 decrypted = pickle.loads(decrypted)
-                salted = decrypted +salt
-                digest = hashes.Hash(hashes.SHA256())
-                digest.update(pickle.dumps(salted))
+                digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
+                digest.update(pickle.dumps(decrypted))
                 hashed = digest.finalize()
                 
-                sql.writePword(username, hashed,salt)
+                sql.writePword(username, hashed, salt)
 
                 
 

@@ -294,7 +294,9 @@ class Window(QWidget):
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
-        message = pickle.dumps(pwordPlain) 
+        salt = gensalt()
+        message = pwordPlain + str(salt)
+        message = pickle.dumps(message) 
         
         with open("public_key.pem", "rb") as key_file:
             public_key = serialization.load_pem_public_key(
@@ -310,7 +312,7 @@ class Window(QWidget):
             )
         )
 
-        request = (1,"sign up",[usernamePlain, encrypted] )
+        request = (1,"sign up",[usernamePlain, encrypted,salt] )
         request = pickle.dumps(request)
         s.send(request)
         msg = s.recv(1024)
