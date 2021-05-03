@@ -68,11 +68,11 @@ class client(Thread):
                     private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
                 decrypted = pickle.loads(decrypted)
-                #salt = str(sql.retSalt(username)[0])
-                print(salt)
+                salt = sql.retSalt(username)
+                print("the salt is", salt)
                 print("the decrypted password is",decrypted)
-                salted = decrypted + salt
-
+                salted = decrypted + salt[0][0]
+                print("the salted password is:" ,salted)
 
                 digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
                 digest.update(pickle.dumps(salted))
@@ -92,13 +92,17 @@ class client(Thread):
                     private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
                 decrypted = pickle.loads(decrypted)
+                print("decrypted: ", decrypted)
                 digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
                 digest.update(pickle.dumps(decrypted))
                 hashed = digest.finalize()
                 
+                print("uname: ", username)
+                print("pword: ", hashed)
+                print("salt: ", salt)
                 sql.writePword(username, hashed, salt)
 
-                
+                reply = pickle.dumps((username, hashed, salt))
 
             elif inp != "":
                 ipaddr = str(self.addr[0])
