@@ -8,11 +8,11 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from bcrypt import gensalt
-
+from os import urandom
 
 usernamePlain = input("what is the username: ")
 pwordPlain = input("what is the password: ")
-salt = gensalt()
+salt = urandom(16)
 message = pwordPlain + str(salt)
 message = pickle.dumps(message) 
 

@@ -68,17 +68,17 @@ class client(Thread):
                     private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
                 decrypted = pickle.loads(decrypted)
-                salt = sql.retSalt(username)
-                print(salt[0][0])
+                #salt = str(sql.retSalt(username)[0])
+                print(salt)
                 print("the decrypted password is",decrypted)
-                salted = decrypted + str(salt[0][0])
-                
-                
+                salted = decrypted + salt
+
+
                 digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
                 digest.update(pickle.dumps(salted))
                 hashed = digest.finalize()
                 check = sql.checkPword(username, hashed)
-
+                print(check)
                 if check:
                     reply = pickle.dumps(check[0])
                 else:
