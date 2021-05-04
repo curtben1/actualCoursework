@@ -12,6 +12,13 @@ import socket
 from threading import *
 import SQLreader as sql
 import pickle
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+
+
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = ""
@@ -44,7 +51,7 @@ class client(Thread):
                     sql.addServer(inp[1],self.addr[0])
                     print(sql.readsList())
                 else:
-                    sqk.remServer(self.addr[0])
+                    sql.remServer(self.addr[0])
 
         elif inp[0] == 1:
             if inp[1]  == "sList":
@@ -53,7 +60,49 @@ class client(Thread):
             elif inp[1]  == "stats":
                 reply = sql.readStats()
                 reply = pickle.dumps(reply)
+
+            elif inp[1] == "logon":
+                username = inp[2][0]
+                pword = inp[2][1]
+                with open("private_key.pem", "rb") as key_file:
+                    private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
+                decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+                decrypted = pickle.loads(decrypted)
+                salt = sql.retSalt(username)
+                print("the salt is", salt)
+                print("the decrypted password is",decrypted)
+                salted = decrypted + salt[0][0]
+                print("the salted password is:" ,salted)
+
+                digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
+                digest.update(pickle.dumps(salted))
+                hashed = digest.finalize()
+                check = sql.checkPword(username, hashed)
+                print(check)
+                if check:
+                    reply = pickle.dumps(check[0])
+                else:
+                    reply = pickle.dumps(False)
+
+            elif inp[1] == "sign up":
+                username = inp[2][0]
+                pword = inp[2][1]
+                salt = inp[2][2]
+                with open("private_key.pem", "rb") as key_file:
+                    private_key = serialization.load_pem_private_key(key_file.read(), password=None, backend=default_backend())
+                decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+                decrypted = pickle.loads(decrypted)
+                print("decrypted: ", decrypted)
+                digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
+                digest.update(pickle.dumps(decrypted))
+                hashed = digest.finalize()
                 
+                print("uname: ", username)
+                print("pword: ", hashed)
+                print("salt: ", salt)
+                sql.writePword(username, hashed, salt)
+
+                reply = pickle.dumps((username, hashed, salt))
 
             elif inp != "":
                 ipaddr = str(self.addr[0])

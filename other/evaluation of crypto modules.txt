@@ -1,0 +1,3 @@
+use of bcrypt, i usedc bcrypt to generate my salts but did not use its more simple version of assymetric encryption as it has reported security issues online whereas cryptography is a  well maintained industry standard library
+
+https://snyk.io/vuln/npm:bcrypt

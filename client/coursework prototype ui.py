@@ -9,6 +9,12 @@ import socket
 import pickle
 from sys import getsizeof
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from os import urandom
+
 # note: can use window properties to pass variables betwwen
 
 
@@ -31,7 +37,7 @@ class Window(QWidget):
         self.startButton = QPushButton(self.tr("&Start"))
         self.statsButton = QPushButton("statisitics")
         self.optionsButton = QPushButton("settings")
-        self.quitButton = QPushButton("Quit Game")
+        
 
         self.printerLabel = QLabel("placeholder")
         self.outputLabel = QLabel("placeholder")
@@ -126,10 +132,30 @@ class Window(QWidget):
         self.radioGroup.addButton(self.selectionFRdo)
         self.radioGroup.addButton(self.buttonConfirm)
 
+        self.quitButton = QPushButton("Quit Game")
+
         self.thread = Worker(self)
 
         self.thread.finished.connect(self.threadDied)
         self.startButton.clicked.connect(self.startListener)
+
+        self.loginFrame = QFrame()
+        self.usernameBox = QLineEdit()
+        self.pwordBox = QLineEdit()
+        self.pwordLabel = QLabel("Password")
+        self.usernameLabel = QLabel("Username")
+        self.enterButton = QPushButton("login")
+        self.signUpButton = QPushButton("Sign Up")
+        self.loginLayout = QVBoxLayout()
+        self.loginLayout.addWidget(self.usernameLabel)
+        self.loginLayout.addWidget(self.usernameBox)
+        self.loginLayout.addWidget(self.pwordLabel)
+        self.loginLayout.addWidget(self.pwordBox)
+        self.loginLayout.addWidget(self.enterButton)
+        self.loginLayout.addWidget(self.signUpButton)
+        self.loginFrame.setLayout(self.loginLayout)
+        self.enterButton.clicked.connect(self.processPword)
+        self.signUpButton.clicked.connect(self.signUp)
 
         self.thread.printTime.connect(self.printer)
         self.thread.drawOps.connect(self.drawOpponents)
@@ -146,8 +172,8 @@ class Window(QWidget):
 
         self.menuLayout.addWidget(self.startButton)
         self.menuLayout.addWidget(self.optionsButton)
-        self.menuLayout.addWidget(self.quitButton)
         self.menuLayout.addWidget(self.menuBrowserButton)
+        self.menuLayout.addWidget(self.quitButton)
 
         self.gamelayout.addWidget(self.printerLabel)
         self.gamelayout.addWidget(self.opponentBox)
@@ -161,9 +187,12 @@ class Window(QWidget):
         self.gamelayout.addWidget(self.selectionFRdo)
         self.gamelayout.addWidget(self.buttonConfirm)
 
+
+
         self.menuFrame = QFrame()
         self.menuFrame.setLayout(self.menuLayout)
         self.windowLayout.addWidget(self.menuFrame)
+        self.menuFrame.hide()
 
         self.gameFrame = QFrame()
         self.gameFrame.setLayout(self.gamelayout)
@@ -179,6 +208,7 @@ class Window(QWidget):
 
         self.setLayout(self.windowLayout)
         self.setWindowTitle(self.tr("Poker Game"))
+        self.loginFrame.show()
 
     def exitGame(self):
         sys.exit()
@@ -220,6 +250,78 @@ class Window(QWidget):
             self.browserFrame.hide()
             self.menuFrame.show()
             
+
+    def processPword(self):
+        usernamePlain = self.usernameBox.text()
+        pwordPlain = self.pwordBox.text()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host = "81.154.185.211"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        port = 5050 # port forward this on my router
+        s.connect((host, port))
+        #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
+        message = pickle.dumps(pwordPlain) 
+        
+        with open("public_key.pem", "rb") as key_file:
+            public_key = serialization.load_pem_public_key(
+                key_file.read(),
+                backend=default_backend()
+            )
+        encrypted = public_key.encrypt(
+            message,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        request = (1,"logon",[usernamePlain, encrypted] )
+        request = pickle.dumps(request)
+        s.send(request)
+        msg = s.recv(1024)
+        msg = pickle.loads(msg)
+        if msg:
+            self.loginFrame.hide()
+            self.menuFrame.show()
+            self.playerNumber = msg
+        
+
+    def signUp(self):
+        usernamePlain = self.usernameBox.text()
+        pwordPlain = self.pwordBox.text()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+        host =  "81.154.185.211"    # ip of my home pc add this in later and maybe replace with pasberry pi
+        port = 5050 # port forward this on my router
+        s.connect((host, port))
+        #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
+        salt = str(urandom(16))
+        message = pwordPlain + salt
+        print("pword+salt: ", message)
+        message = pickle.dumps(message) 
+        
+        with open("public_key.pem", "rb") as key_file:
+            public_key = serialization.load_pem_public_key(
+                key_file.read(),
+                backend=default_backend()
+            )
+        encrypted = public_key.encrypt(
+            message,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        request = (1,"sign up",[usernamePlain, encrypted,salt] )
+        request = pickle.dumps(request)
+        s.send(request)
+        conf = s.recv(1024)
+        if conf:
+            self.processPword()
+            
+        
+        
 
     def startListener(self,ip):
         # show all of the stuff

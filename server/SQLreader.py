@@ -66,6 +66,51 @@ def readStats(user):
     results = cur.fetchall()
     return results
 
+def retSalt(userName):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    userName = (userName,)  
+    cur.execute("SELECT salt FROM Accounts WHERE name = ?",userName)
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+def checkPword(userName,hashed):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM Accounts WHERE name = ? and password = ?",(userName,hashed))
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+def writePword(name, passwrd, salt):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    cur.execute("INSERT INTO Accounts (name,password,salt) VALUES (?,?,?)",(name, passwrd, salt))
+    results = cur.fetchall()
+    con.commit()
+    return results
+
+    
+
+def checkDetails(userName, hashed):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    details = (userName,hashed)  
+    cur.execute("SELECT *FROM Accounts WHERE name = ? and password = ?",details)
+    results = cur.fetchall()
+
+    return results
+
+def writeIP(userName,ip):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+    details = (ip, True, userName)  
+    cur.execute("UPDATE Accounts SET ip = ?, loggedIn = ? WHERE name = ?",details)
+    results = cur.fetchall()
+
+    return results
 #=========================================================================================================================================================
 
 
