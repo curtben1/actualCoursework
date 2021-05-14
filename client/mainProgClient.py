@@ -36,7 +36,7 @@ def options(menu):
 
 def playGame(serverNum, serverList):     
     gamesocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-    """for row in serverList:
+    """for row in serverList:       # for when testing serv list
         if row[0]  == serverNum:
             host = row[2]
             break"""
@@ -45,38 +45,34 @@ def playGame(serverNum, serverList):
     playerInfo = ["command line", "playerNum"]  ## use actual info here
     msg = pickle.dumps(playerInfo)
     gamesocket.send(msg)
-
-
-    while True: 
-        
+    while True:         # loop fr the lobby, stays here while players connect
         data2 = gamesocket.recv(4096)
-        if data2:
+        if data2:       # if something is recieved
             data2 = pickle.loads(data2)
             if isinstance(data2, list):
                 print(data2)
-                break
+                break           # if its a list then the lobby is complete and this list is used in main game(changed for ui)
                 start = input("do you want to start the game now (YES/OTHER)")
-                if start  == "YES":
+                if start  == "YES":             # vote for starting game, old feature broken before reach
                     msg =  pickle.dumps(start)
                     gamesocket.send(msg)
             else:
                 print(data2)
                 print("game starting")
                 break
-    while True:
+    while True:             # actual gameplay
         print("again")
-        data = gamesocket.recv(4096)
+        data = gamesocket.recv(4096)            
         print("recieved")
         data = pickle.loads(data)   # http://acbl.mybigcommerce.com/52-playing-cards/ connect incoming data to labels with these cards
-        
         try:
-            data = data.split('#')
+            data = data.split('#')          # data packets split by hashes, first item works as tag to denote what is held in rest
             if data[0]== '1'or data[0]=='6':
                 try:
                     pot = int(data[1])
                     pickled  = pickle.dumps("None")
                     gamesocket.send(pickled)
-                except:
+                except:     # if data 1 is string it is asking for bet
                     if len(data) == 3:
                         print("the current bet to call is ", data[2])
                     val = input(data[1])
@@ -84,19 +80,19 @@ def playGame(serverNum, serverList):
                     gamesocket.send(val)
             else:
                 print(data[1])
-        except:
-            print("notstring")
+        except:     #if data is not a string then it is a game info update tuple
+            print("notstring")      #debugging info
             try:
                 print("sending")
                 myvar = data[0]["chips"]
                 var = pickle.dumps("None")
                 gamesocket.send(var)
                 print("sent")
-            except Exception as exception:
+            except Exception as exception:      # exceltion handling
                 print(exception,"data was ", data)
                 pass
-            print(data)
-            if data  == "game over":
+            print(data)     # for debugging
+            if data  == "game over":        # not used
                 return "Game Over" 
         
         
