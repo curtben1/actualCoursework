@@ -283,7 +283,7 @@ class Window(QWidget):
         if msg:
             self.loginFrame.hide()
             self.menuFrame.show()
-            self.playerNumber = msg
+            self.username = msg
         
 
     def signUp(self):
@@ -296,7 +296,7 @@ class Window(QWidget):
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
         salt = str(urandom(16))
         message = pwordPlain + salt
-        print("pword+salt: ", message)
+        print("pword+salt: ", message) 
         message = pickle.dumps(message) 
         
         with open("public_key.pem", "rb") as key_file:

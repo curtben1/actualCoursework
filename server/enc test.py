@@ -1,5 +1,3 @@
-import socket
-from threading import *
 import SQLreader as sql
 import pickle
 from cryptography.hazmat.backends import default_backend
@@ -7,7 +5,6 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
-from bcrypt import gensalt
 from os import urandom
 
 usernamePlain = input("what is the username: ")
@@ -31,16 +28,10 @@ encrypted = public_key.encrypt(
 )
 request = (1,"sign up",[usernamePlain, encrypted,salt] )
 
-
 inp = request
 print("the tuple being sent is: ",request)
 
-
-
-
-
-
-
+#=================================================================================================================================================================
 
 username = inp[2][0]
 pword = inp[2][1]
@@ -61,25 +52,7 @@ print("the hashed password is",hashed)
 print("the unhashed password is",decrypted)
 sql.writePword(username, hashed,salt)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#=================================================================================================================================================================
 
 usernamePlain = input("what is the username: ")
 pwordPlain = input("what is the password: ")
@@ -104,11 +77,7 @@ request = (1,"logon",[usernamePlain, encrypted] )
 print("the tuple being sent is: ",request)
 
 msg = request
-
-
-
-
-
+#=================================================================================================================================================================
 username = request[2][0]
 pword = request[2][1]
 with open("private_key.pem", "rb") as key_file:
@@ -133,6 +102,4 @@ if check:
     reply = check[0]
 else:
     reply = False
-
-
 print(reply)
