@@ -69,20 +69,23 @@ class client(Thread):
                 decrypted = private_key.decrypt(pword,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
                 decrypted = pickle.loads(decrypted)
                 salt = sql.retSalt(username)
-                print("the salt is", salt)
-                print("the decrypted password is",decrypted)
-                salted = decrypted + salt[0][0]
-                print("the salted password is:" ,salted)
+                if salt != []:
+                    print("the salt is", salt)
+                    print("the decrypted password is",decrypted)
+                    salted = decrypted + salt[0][0]
+                    print("the salted password is:" ,salted)
 
-                digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
-                digest.update(pickle.dumps(salted))
-                hashed = digest.finalize()
-                check = sql.checkPword(username, hashed)
-                print(check)
-                if check:
-                    reply = pickle.dumps(check[0])
+                    digest = hashes.Hash(hashes.SHA256(), backend = default_backend())
+                    digest.update(pickle.dumps(salted))
+                    hashed = digest.finalize()
+                    check = sql.checkPword(username, hashed)
+                    print(check)
+                    if check:
+                        reply = pickle.dumps(check[0])
+                    else:
+                        reply = pickle.dumps(False)
                 else:
-                    reply = pickle.dumps(False)
+                     reply = pickle.dumps(False)
 
             elif inp[1] == "sign up":
                 username = inp[2][0]
@@ -100,9 +103,12 @@ class client(Thread):
                 print("uname: ", username)
                 print("pword: ", hashed)
                 print("salt: ", salt)
-                sql.writePword(username, hashed, salt)
+                if sql.findUname(username):
+                    reply = pickle.dumps(False)
+                else:
+                    sql.writePword(username, hashed, salt)
 
-                reply = pickle.dumps((username, hashed, salt))
+                    reply = pickle.dumps((username, hashed, salt))
 
             elif inp != "":
                 ipaddr = str(self.addr[0])

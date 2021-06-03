@@ -84,6 +84,15 @@ def checkPword(userName,hashed):
     con.commit()
     return results
 
+def findUname(userName):
+    con = sql.connect("main.db")
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM Accounts WHERE name = ? ",(userName,))
+    results = cur.fetchall()
+    con.commit()
+    return results
+
 def writePword(name, passwrd, salt):
     con = sql.connect("main.db")
     cur = con.cursor()

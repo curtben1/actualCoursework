@@ -67,6 +67,7 @@ class Window(QWidget):
         self.raiseLabel = QLabel("How much do you want to raise the bet by")
         self.back = QPixmap("assetts/gray_ba0k.png")
         self.back3 = QPixmap("assetts/folded.png")
+        self.logo = QPixmap("assetts/bens poker experience.png")
 
         self.back = self.back.scaledToWidth(96)
         self.back2 = self.back.scaledToWidth(48)
@@ -147,6 +148,7 @@ class Window(QWidget):
         self.enterButton = QPushButton("login")
         self.signUpButton = QPushButton("Sign Up")
         self.loginLayout = QVBoxLayout()
+        self.pwordBox.setEchoMode(QLineEdit.Password)
         self.loginLayout.addWidget(self.usernameLabel)
         self.loginLayout.addWidget(self.usernameBox)
         self.loginLayout.addWidget(self.pwordLabel)
@@ -170,10 +172,16 @@ class Window(QWidget):
         self.windowLayout = QVBoxLayout()
         self.menuLayout = QVBoxLayout()
 
+        self.logoLabel = QLabel()
+        self.logoLabel.setPixmap(self.logo)
+
+        self.menuLayout.addWidget(self.logoLabel)
         self.menuLayout.addWidget(self.startButton)
         self.menuLayout.addWidget(self.optionsButton)
         self.menuLayout.addWidget(self.menuBrowserButton)
         self.menuLayout.addWidget(self.quitButton)
+
+        
 
         self.gamelayout.addWidget(self.printerLabel)
         self.gamelayout.addWidget(self.opponentBox)
@@ -229,7 +237,7 @@ class Window(QWidget):
 
     def getServers(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host = "86.160.32.246"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        host = "127.0.0.1"   # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
         request = (1,"sList" )
@@ -255,7 +263,7 @@ class Window(QWidget):
         usernamePlain = self.usernameBox.text()
         pwordPlain = self.pwordBox.text()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host = "81.154.185.211"   # ip of my home pc add this in later and maybe replace with pasberry pi
+        host = "127.0.0.1"   # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/
@@ -290,7 +298,7 @@ class Window(QWidget):
         usernamePlain = self.usernameBox.text()
         pwordPlain = self.pwordBox.text()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        host =  "81.154.185.211"    # ip of my home pc add this in later and maybe replace with pasberry pi
+        host =  "127.0.0.1"    # ip of my home pc add this in later and maybe replace with pasberry pi
         port = 5050 # port forward this on my router
         s.connect((host, port))
         #https://nitratine.net/blog/post/asymmetric-encryption-and-decryption-in-python/

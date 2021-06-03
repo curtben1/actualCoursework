@@ -16,7 +16,7 @@ class gameServer:
 
     def publicise(self):
         tempSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        host = "86.160.32.246"
+        host = "127.0.0.1"
         port = 5050
         msg = str(input("Server Name: "))
         msg = (0, msg)
